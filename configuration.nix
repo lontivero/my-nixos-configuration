@@ -222,6 +222,9 @@
     tree
     watch
     bat
+    file
+    killall
+    patchelf
   ];
 
   environment.variables = {
