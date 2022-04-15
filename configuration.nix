@@ -18,7 +18,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
   
   # For nvidia test
-  boot.initrd.kernelModules = [ "amdgpu" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
 
@@ -51,8 +50,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   
-  services.xserver.videoDrivers = [ "amdgpu" ];
-  
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.opengl.enable = true;
+
   # do not install what I dont want
   services.gnome.core-utilities.enable = false;
 
