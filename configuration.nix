@@ -52,6 +52,7 @@
   
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
+  # hardware.nvidia.modesetting.enable = true;
 
   # do not install what I dont want
   services.gnome.core-utilities.enable = false;
@@ -71,8 +72,7 @@
     ];
   };
 
-  # hardware.nvidia.modesetting.enable = true;
-  # services.xserver.videoDrivers = [ "nvidia" ];
+  services.logind.lidSwitch = "ignore"
 
   # Configure keymap in X11
   services.xserver.layout = "es,us";
