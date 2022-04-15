@@ -18,7 +18,9 @@
   boot.loader.efi.canTouchEfiVariables = true;
   
   # For nvidia test
+  boot.initrd.kernelModules = [ "amdgpu" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -48,7 +50,9 @@
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
+  
+  services.xserver.videoDrivers = [ "amdgpu" ];
+  
   # do not install what I dont want
   services.gnome.core-utilities.enable = false;
 
