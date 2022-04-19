@@ -60,22 +60,26 @@
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.defaultSession = "none+i3";
   services.xserver.desktopManager.xterm.enable = false;
-  
-  environment.pathsToLink = [ "/libexec" ];
+
+  documentation.man.generateCaches = true;
+
+  environment.pathsToLink = [ "/libexec" "/share/fish" ];
   services.xserver.windowManager.i3 = {
     enable = true;
+    package = pkgs.i3-gaps;
     extraPackages = with pkgs; [
-       dmenu
-       i3status
-       i3lock
-       i3blocks
+      dmenu
+      i3status
+      i3lock
+      i3blocks
     ];
   };
 
-  services.logind.lidSwitch = "ignore"
+  # Do not suspend when close the laptop
+  services.logind.lidSwitch = "ignore";
 
   # Configure keymap in X11
-  services.xserver.layout = "es,us";
+  services.xserver.layout = "latam,us";
   services.xserver.xkbOptions = "eurosign:e, compose:menu, grp:alt_space_toggle";
 
   # Enable CUPS to print documents.
@@ -102,25 +106,45 @@
   home-manager.useGlobalPkgs = true;
   home-manager.users.lontivero = { pkgs, ... }: {
     programs = {
+      man.generateCaches = true;
+      bat = {
+        enable = true;
+      };
       fish = {
         enable = true;
+        shellInit = ''
+          set fish_color_autosuggestion brblack
+        '';
         shellAliases = {
           gdiff = "git diff";
           gl = "git prettylog";
           gs = "git status";
+
+          mkdir = "mkdir -p";
+          suspend = "systemctl suspend";
         };
+        shellAbbrs = {
+          n = "nvim";
+        };
+        functions = {
+          mkdcd = {
+            description = "Make a directory and enter it";
+            body = "mkdir -p $argv[1]; and cd $argv[1]";
+          };
+        };
+      };
+      direnv = {
+        enable = true;
+        enableFishIntegration = true;
       };
       git = {
         enable = true;
         userName = "Lucas Ontivero";
         userEmail = "lucasontivero@gmail.com";
-        signing = {
-          key = "key-fingerprint here";
-          signByDefault = true;
-        };
         aliases = {
           prettylog = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(r) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           root = "rev-parse --show-toplevel";
+    fixup = "!git log -n 10 --pretty=format: '%h %s' --no-merges | fzf | cut -c -t | xargs -o git commit --fixup";
         };
         extraConfig = {
           # branch.autosetuprebase = "always";
@@ -129,6 +153,16 @@
           credential.helper = "store"; # want to make this more secure
           github.user = "lontivero";
           init.defaultBranch = "master";
+          core = {
+            autocrlf = true;
+            eol = "lf";
+          };
+          rebase = {
+            autosquash = true;
+          };
+          pull = {
+            ff = "only";
+          };
         };
       };
       alacritty = {
@@ -159,6 +193,8 @@
       };
       neovim = {
         enable = true;
+        viAlias = true;
+        vimAlias = true;
         # package = pkgs.neovim-nightly;
 
         plugins = with pkgs; [
@@ -223,12 +259,14 @@
     jq
     ripgrep
     rofi
+    ranger
     tree
     watch
     bat
     file
     killall
     patchelf
+    direnv
   ];
 
   environment.variables = {
@@ -275,6 +313,5 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "21.11"; # Did you read the comment?
-
 }
 
