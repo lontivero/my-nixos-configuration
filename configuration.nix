@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       <home-manager/nixos>
+      ./ssh.nix
     ];
 
   nixpkgs.config.allowUnfree = true;
@@ -105,6 +106,14 @@
   services.gnome.gnome-keyring.enable = true;
   home-manager.useGlobalPkgs = true;
   home-manager.users.lontivero = { pkgs, ... }: {
+    gtk = {
+      enable = true;
+      theme = {
+          name = "Nordic";
+          package = pkgs.nordic; # gnome3.gnome_themes_standard;
+          # name = "Adwaita";
+      };
+    };
     programs = {
       man.generateCaches = true;
       bat = {
@@ -267,15 +276,31 @@
     killall
     patchelf
     direnv
-  ];
+
+    dunst
+    scrot
+    viewnior
+    mpd
+    mpc_cli
+    acpi
+    brightnessctl
+    scrot
+    libnotify
+
+    lxappearance
+ ];
 
   environment.variables = {
     EDITOR = "nvim";
     TERMINAL = "alacritty";
+    BROWSER = "firefox";
   };
 
 
   programs = {
+      dconf = {
+        enable = true;
+      };
   };
 
   fonts = {
