@@ -11,6 +11,7 @@ in
     enable = true;
     forwardAgent = false;
     hashKnownHosts = true;
+    serverAliveInterval=60;
 #    knownHosts = [
 #      {
 #        hostNames = ["github.com" "192.30.253.113"];

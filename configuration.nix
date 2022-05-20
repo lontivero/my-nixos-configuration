@@ -17,7 +17,10 @@
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
+
+  # Plymouth boot splash screen
+  boot.plymouth.enable = true;
+
   # For nvidia test
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -128,6 +131,8 @@
           gdiff = "git diff";
           gl = "git prettylog";
           gs = "git status";
+	  cat = "bat -p";
+	  grep = "rg";
 
           mkdir = "mkdir -p";
           suspend = "systemctl suspend";
@@ -151,6 +156,7 @@
         userName = "Lucas Ontivero";
         userEmail = "lucasontivero@gmail.com";
         aliases = {
+	  remotes = "remote -v";
           prettylog = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(r) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           root = "rev-parse --show-toplevel";
     fixup = "!git log -n 10 --pretty=format: '%h %s' --no-merges | fzf | cut -c -t | xargs -o git commit --fixup";
@@ -162,10 +168,10 @@
           credential.helper = "store"; # want to make this more secure
           github.user = "lontivero";
           init.defaultBranch = "master";
-          core = {
-            autocrlf = true;
-            eol = "lf";
-          };
+          # core = {
+          #   autocrlf = true;
+          #   eol = "lf";
+          # };
           rebase = {
             autosquash = true;
           };
@@ -232,6 +238,60 @@
         ];
 
         # extraConfig = (import ./vim-config.nix) { inherit sources; };
+	extraConfig = ''
+          set nocompatible " use vim defaults
+          set backspace=indent,eol,start " Allow backspacing over everything in insert mode
+          let mapleader=","
+          command! W :w " Seriously, guys. It's not like :W is bound to anything anyway.
+      
+          map <C-5> :noh<CR>
+      
+          " Window movement without the extra ctrl+w press only ctrl+(h,j,k,l)
+          nmap <C-h> <C-w>h
+          nmap <C-j> <C-w>j
+          nmap <C-k> <C-w>k
+          nmap <C-l> <C-w>l
+      
+          " Shortcut to rapidly toggle `set list`
+          nmap <leader>l :set list!<CR>
+      
+          " Shortcut to map ; to :
+          nnoremap ; :
+          set nostartofline   " don't jump to first character when paging
+          set sm              " show matching braces
+      
+          " Searching
+          set hlsearch
+          set incsearch
+          set ignorecase
+          set smartcase
+          set wildignorecase
+
+
+          set nocompatible    " use vim defaults
+          set number          " show line numbers
+          set numberwidth=4   " line numbering takes up to 4 spaces
+          set ruler           " show the cursor position all the time
+          
+          " Set encoding
+          set encoding=utf-8
+          
+          " Whitespace stuff
+          set tabstop=4
+          set shiftwidth=4
+          set softtabstop=4
+          set expandtab
+          
+          " Show invisibles
+          "set list
+          
+          " Searching
+          set hlsearch
+          set incsearch
+          set ignorecase
+          set smartcase
+          set wildignorecase
+	'';
       };
       vscode = {
         enable = true;
@@ -288,6 +348,9 @@
     libnotify
 
     lxappearance
+
+    mc
+    sshfs
  ];
 
   environment.variables = {
@@ -318,6 +381,25 @@
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
+
+    pinentryFlavor = "tty";
+  };
+  programs.tmux = {
+    enable = true;
+    terminal = "xterm-256color";
+    shortcut = "a";
+    keyMode = "vi";
+    extraConfig = ''
+      bind | split-window -h
+      bind - split-window -v
+    '';
+  };
+
+  nix = {
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
   };
 
   # List services that you want to enable:
