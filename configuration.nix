@@ -131,11 +131,11 @@
           gdiff = "git diff";
           gl = "git prettylog";
           gs = "git status";
-	  cat = "bat -p";
-	  grep = "rg";
-
+          cat = "bat -p";
+          grep = "rg";
           mkdir = "mkdir -p";
           suspend = "systemctl suspend";
+          ss = "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"
         };
         shellAbbrs = {
           n = "nvim";
@@ -156,7 +156,7 @@
         userName = "Lucas Ontivero";
         userEmail = "lucasontivero@gmail.com";
         aliases = {
-	  remotes = "remote -v";
+          remotes = "remote -v";
           prettylog = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(r) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           root = "rev-parse --show-toplevel";
     fixup = "!git log -n 10 --pretty=format: '%h %s' --no-merges | fzf | cut -c -t | xargs -o git commit --fixup";
@@ -238,7 +238,7 @@
         ];
 
         # extraConfig = (import ./vim-config.nix) { inherit sources; };
-	extraConfig = ''
+        extraConfig = ''
           set nocompatible " use vim defaults
           set backspace=indent,eol,start " Allow backspacing over everything in insert mode
           let mapleader=","
