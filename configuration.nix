@@ -138,7 +138,7 @@
           grep = "rg";
           mkdir = "mkdir -p";
           suspend = "systemctl suspend";
-          ss = "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'"
+          ss = "scrot -s -e 'xclip -selection clipboard -t image/png -i $f'";
         };
         shellAbbrs = {
           n = "nvim";
