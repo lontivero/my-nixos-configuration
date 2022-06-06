@@ -77,7 +77,10 @@
       i3lock
       i3blocks
     ];
+    configFile = "/etc/i3.conf";
   };
+
+  environment.etc."i3.conf".text = pkgs.callPackage ./i3-config.nix {};
 
   # Do not suspend when close the laptop
   services.logind.lidSwitch = "ignore";
