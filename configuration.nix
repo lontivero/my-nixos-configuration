@@ -275,6 +275,7 @@
     alacritty
     git
     git-crypt
+    lazygit
     unzip
     feh
     tmux
@@ -292,7 +293,6 @@
     direnv
 
     dunst
-    scrot
     viewnior
     mpd
     mpc_cli
@@ -306,6 +306,9 @@
 
     mc
     sshfs
+    graphviz
+
+    dotnet-sdk_6
  ];
 
   environment.variables = {
