@@ -129,6 +129,10 @@
         enable = true;
         shellInit = ''
           set fish_color_autosuggestion brblack
+          if status is-interactive
+          and not set -q TMUX
+            exec tmux
+          end
         '';
         shellAliases = {
           gdiff = "git diff";
@@ -336,12 +340,36 @@
   };
   programs.tmux = {
     enable = true;
-    terminal = "xterm-256color";
+    terminal = "tmux-256color";
     shortcut = "a";
     keyMode = "vi";
     extraConfig = ''
-      bind | split-window -h
-      bind - split-window -v
+      setw -g mouse on
+      
+      # Stay in same directory when split
+      bind | split-window -h -c "#{pane_current_path}"
+      bind - split-window -v -c "#{pane_current_path}"
+
+      bind-key R run-shell ' \
+        tmux source-file /etc/tmux.conf > /dev/null; \
+        tmux display-message "sourced /etc/tmux.conf"'
+
+      # Be faster switching windows
+      bind C-n next-window
+      bind C-p previous-window
+
+      # Force true colors
+      set-option -ga terminal-overrides ",*:Tc"
+
+      set-option -g mouse on
+      set-option -g focus-events on
+
+      # Stay in same directory when split
+      bind % split-window -h -c "#{pane_current_path}"
+      bind '"' split-window -v -c "#{pane_current_path}"
+      
+      #bind-key -n Home send Escape "OH"
+      #bind-key -n End send Escape "OF"
     '';
   };
 
