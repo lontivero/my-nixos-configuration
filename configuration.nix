@@ -330,6 +330,7 @@
     fonts = with pkgs; [
       ubuntu_font_family
       liberation_ttf
+      (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
     ];
   };
 
