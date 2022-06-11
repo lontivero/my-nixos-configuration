@@ -328,6 +328,7 @@
     fontDir.enable = true;
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
+      powerline-fonts
       ubuntu_font_family
       liberation_ttf
       (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
