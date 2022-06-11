@@ -234,12 +234,13 @@
           # customVim.nvim-treesitter-playground
           # customVim.nvim-treesitter-textobjects
 
-          # vimPlugins.vim-airline
-          # vimPlugins.vim-airline-themes
-          # vimPlugins.vim-gitgutter
+          vimPlugins.vim-airline
+          vimPlugins.vim-airline-themes
+          vimPlugins.vim-gitgutter
 
-          # vimPlugins.vim-markdown
-          # vimPlugins.vim-nix
+          vimPlugins.vim-markdown
+          vimPlugins.vim-nix
+          vimPlugins.vimwiki
         ];
 
         # extraConfig = (import ./vim-config.nix) { inherit sources; };
