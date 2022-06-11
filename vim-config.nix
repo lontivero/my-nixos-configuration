@@ -11,6 +11,9 @@ in
 
   map <C-5> :noh<CR>
 
+  " Use system clipboard
+  set clipboard+=unnamedplus
+
   " Window movement without the extra ctrl+w press only ctrl+(h,j,k,l)
   nmap <C-h> <C-w>h
   nmap <C-j> <C-w>j
