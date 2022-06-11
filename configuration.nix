@@ -282,6 +282,7 @@
     jq
     ripgrep
     rofi
+    nitrogen
     ranger
     tree
     watch
