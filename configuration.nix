@@ -150,6 +150,10 @@
             description = "Make a directory and enter it";
             body = "mkdir -p $argv[1]; and cd $argv[1]";
           };
+          clip = {
+            description = "xclip selection";
+            body = "xclip -selection c $argv";
+          };
         };
       };
       direnv = {
