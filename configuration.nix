@@ -177,10 +177,6 @@
           credential.helper = "store"; # want to make this more secure
           github.user = "lontivero";
           init.defaultBranch = "master";
-          # core = {
-          #   autocrlf = true;
-          #   eol = "lf";
-          # };
           rebase = {
             autosquash = true;
           };
