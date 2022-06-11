@@ -306,6 +306,7 @@
     mc
     sshfs
     graphviz
+    pandoc
 
     dotnet-sdk_6
  ];
