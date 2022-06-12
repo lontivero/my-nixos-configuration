@@ -1,5 +1,6 @@
 { pkgs, dmenu, i3status}:
 let
+  lowbattery-alert = pkgs.callPackage ./lowbattery-alert.nix {};
   wallpaper-roller = pkgs.callPackage ./wallpaper-roller.nix {};
 in
 ''
@@ -235,6 +236,10 @@ assign [class="(?i)virtualbox"]     $ws9
 
 # Set background
 exec_always --no-startup-id ${pkgs.nitrogen}/bin/nitrogen --restore
+
+# run special warning script
+exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
+
 # Wallpaper Script
 exec --no-startup-id ${wallpaper-roller}/bin/wallpaper-roller.sh
 ''
