@@ -102,7 +102,7 @@ in
 		  \ 'template_default': 'GitHub',
           \ 'template_ext': '.html5',
           \ 'syntax': 'markdown',
-          \ 'css_name': 'none.css'}
+          \ 'css_name': 'none.css',
           \ 'ext': '.md'}]
 
   let g:vimwiki_hl_headers = 1
