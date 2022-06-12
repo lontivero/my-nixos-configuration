@@ -242,4 +242,22 @@ exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
 
 # Wallpaper Script
 exec --no-startup-id ${wallpaper-roller}/bin/wallpaper-roller.sh
+
+set $Locker ${pkgs.i3lock}/bin/i3lock && sleep 1
+
+bindsym $mod+Pause mode "$mode_system"
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
+mode "$mode_system" {
+    bindsym l exec --no-startup-id $Locker, mode "default"
+    bindsym e exec --no-startup-id i3-msg exit, mode "default"
+    bindsym s exec --no-startup-id $Locker && systemctl suspend, mode "default"
+    bindsym h exec --no-startup-id $Locker && systemctl hibernate, mode "default"
+    bindsym r exec --no-startup-id systemctl reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"
+
+    # back to normal: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
 ''
