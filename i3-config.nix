@@ -236,6 +236,7 @@ assign [class="(?i)virtualbox"]     $ws9
 
 # Set background
 exec_always --no-startup-id ${pkgs.nitrogen}/bin/nitrogen --restore
+bindsym $mod+Pause mode "$mode_system"
 
 assign [class="Alacrity"]           $ws1
 
@@ -246,9 +247,16 @@ exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
 # Wallpaper Script
 exec --no-startup-id ${wallpaper-roller}/bin/wallpaper-roller.sh
 
+# autostart
+#exec_always start-pulseaudio-x11
+exec --no-startup-id i3-msg 'workspace $ws1; exec $term'
+exec --no-startup-id i3-msg 'workspace $ws2; exec firefox'
+#exec --no-startup-id i3-msg 'workspace $ws4; exec code'
+#exec --no-startup-id urxvt -name dropdown -e tmux
+#exec --no-startup-id urxvt -name math -e ~/.config/i3/dropdowncalc
+
 set $Locker ${pkgs.i3lock}/bin/i3lock && sleep 1
 
-bindsym $mod+Pause mode "$mode_system"
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $Locker, mode "default"
