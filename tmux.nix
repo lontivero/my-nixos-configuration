@@ -28,6 +28,8 @@
 
       bind -n Home send-key C-e
       bind -n End send-key C-a
+
+      set-option repeat-time 100
     '';
   };
 }
