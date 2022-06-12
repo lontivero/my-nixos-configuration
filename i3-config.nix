@@ -237,6 +237,9 @@ assign [class="(?i)virtualbox"]     $ws9
 # Set background
 exec_always --no-startup-id ${pkgs.nitrogen}/bin/nitrogen --restore
 
+assign [class="Alacrity"]           $ws1
+
+
 # run special warning script
 exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
 
