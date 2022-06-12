@@ -121,16 +121,16 @@ bindsym --release $mod+Shift+Print exec ${pkgs.scrot}/bin/scrot -s -f $HOME/Scre
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
-set $ws1 "1"
-set $ws2 "2"
-set $ws3 "3"
-set $ws4 "4"
-set $ws5 "5"
-set $ws6 "6"
-set $ws7 "7"
-set $ws8 "8"
-set $ws9 "9"
-set $ws10 "10"
+set $ws1   1: Terminal
+set $ws2   2: Web
+set $ws3   3: File
+set $ws4   4: Code
+set $ws5   5: Media
+set $ws6   6: Chat
+set $ws7   7: Doc
+set $ws8   8: Down
+set $ws9   9: Conf
+set $ws0   10: Misc
 
 # switch to workspace
 bindsym $mod+1 workspace number $ws1
