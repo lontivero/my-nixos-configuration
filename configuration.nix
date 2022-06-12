@@ -168,7 +168,7 @@
           remotes = "remote -v";
           prettylog = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(r) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           root = "rev-parse --show-toplevel";
-    fixup = "!git log -n 10 --pretty=format: '%h %s' --no-merges | fzf | cut -c -t | xargs -o git commit --fixup";
+          fixup = "!git log -n 10 --pretty=format:'%h %s' --no-merges | fzf | cut -d' ' -f1 | xargs -o git commit --fixup";
         };
         extraConfig = {
           # branch.autosetuprebase = "always";
