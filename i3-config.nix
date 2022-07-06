@@ -203,11 +203,8 @@ bar {
         status_command i3status
 }
 
-bindsym $mod+m exec --no-startup-id ~/.config/rofi/bin/applet_mpd
-bindsym $mod+n exec --no-startup-id ~/.config/rofi/bin/applet_network
-bindsym $mod+p exec --no-startup-id ~/.config/rofi/bin/applet_powermenu
-
 assign [class="Termite"]            $ws1
+assign [class="Alacritty"]          $ws1
 assign [class="urxvt"]              $ws1
 assign [class=".*(F|f)irefox.*"]    $ws2
 assign [class="chromium"]           $ws2
@@ -242,7 +239,7 @@ assign [class="Alacrity"]           $ws1
 
 
 # run special warning script
-exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
+# exec --no-startup-id ${lowbattery-alert}/bin/lowbattery-alert.sh
 
 # Wallpaper Script
 exec --no-startup-id ${wallpaper-roller}/bin/wallpaper-roller.sh
