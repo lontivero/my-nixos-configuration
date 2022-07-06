@@ -13,8 +13,8 @@
       bind - split-window -v -c "#{pane_current_path}"
 
       bind-key R run-shell ' \
-        tmux source-file /etc/tmux.conf > /dev/null; \
-        tmux display-message "sourced /etc/tmux.conf"'
+      tmux source-file /etc/tmux.conf > /dev/null; \
+      tmux display-message "sourced /etc/tmux.conf"'
 
       # Be faster switching windows
       bind C-n next-window
@@ -26,8 +26,8 @@
       set-option -g mouse on
       set-option -g focus-events on
 
-      bind -n Home send-key C-e
-      bind -n End send-key C-a
+      bind -n Home send-key C-a
+      bind -n End send-key C-e
 
       set-option repeat-time 100
     '';
