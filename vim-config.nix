@@ -100,17 +100,20 @@ in
           \ 'custom_wiki2html': '${wiki2html}/bin/wiki2html.sh',
           \ 'path_html': '$HOME/Documents/Wiki/html',
           \ 'path': '$HOME/Documents/Wiki/src',
-		  \ 'template_path': '$HOME/Documents/Wiki/templates/',
+		  \ 'template_path': '$HOME/Documents/Wiki/templates',
 		  \ 'template_default': 'GitHub',
-          \ 'template_ext': '.html5',
+          \ 'template_ext': 'html5',
+          \ 'auto_toc': 1,
           \ 'syntax': 'markdown',
           \ 'css_name': 'none.css',
-          \ 'ext': '.md'}]
+          \ 'ext': 'md'}]
 
   let g:vimwiki_hl_headers = 1
   let g:vimwiki_ext2syntax = {'.md': 'markdown'}          
   let g:vimwiki_markdown_link_ext = 1
 
+  autocmd FileType vimwiki inoremap <F5> <Esc>:VimwikiAll2HTML<Enter>
+  autocmd FileType vimwiki nnoremap <F5> :VimwikiAll2HTML<Enter>
 
   " add the pre tag for inserting code snippets
   " let g:vimwiki_valid_html_tags = 'b,i,s,u,sub,sup,kbd,br,hr,pre,script'  
