@@ -41,6 +41,8 @@ in
   set numberwidth=4   " line numbering takes up to 4 spaces
   set ruler           " show the cursor position all the time
   
+  set nowrap          " no wrap lines
+
   " Set encoding
   set encoding=utf-8
   
