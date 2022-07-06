@@ -29,7 +29,8 @@
       bind -n Home send-key C-a
       bind -n End send-key C-e
 
-      set-option repeat-time 100
+      set-option -g repeat-time 100
+      set -sg escape-time 0
     '';
   };
 }
