@@ -12,6 +12,8 @@ in
     forwardAgent = false;
     hashKnownHosts = true;
     serverAliveInterval=60;
+    controlMaster = "auto";
+    controlPath = "~/.ssh/master-%r@%h:%p";
 #    knownHosts = [
 #      {
 #        hostNames = ["github.com" "192.30.253.113"];
