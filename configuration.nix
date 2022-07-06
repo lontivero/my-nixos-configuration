@@ -10,6 +10,7 @@
       <home-manager/nixos>
       ./ssh.nix
       ./tmux.nix
+      ./picom.nix
     ];
 
   nixpkgs.config.allowUnfree = true;
