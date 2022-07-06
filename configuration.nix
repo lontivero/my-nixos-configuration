@@ -348,6 +348,8 @@
 
   nix = {
     package = pkgs.nixFlakes;
+    gc.automatic = true;
+    gc.options = "--delete-older-than 30d";
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
