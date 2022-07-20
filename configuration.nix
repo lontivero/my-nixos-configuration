@@ -348,9 +348,12 @@
 
   nix = {
     package = pkgs.nixFlakes;
-    gc.automatic = true;
-    gc.options = "--delete-older-than 30d";
+    gc = {
+      automatic = true;
+      options = "--delete-older-than 30d";
+    };
     extraOptions = ''
+      keep-outputs = true
       experimental-features = nix-command flakes
     '';
   };
