@@ -18,6 +18,10 @@
       xrender-sync-fence = true;
       mark-ovredir-focused = false;
       use-ewmh-active-win = true;
-    '';
+
+      unredir-if-possible = false;
+      backend = "xrender"; # try "glx" if xrender doesn't help
+      vsync = true;
+      '';
   };
 }
