@@ -296,6 +296,7 @@
     pandoc
 
     dotnet-sdk_6
+    jetbrains.rider
  ];
 
   environment.variables = {
