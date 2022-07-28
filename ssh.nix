@@ -56,6 +56,7 @@ in
       };
     };
     extraConfig = ''
+      identitiesOnly yes 
       AddKeysToAgent yes
     '';
   };
