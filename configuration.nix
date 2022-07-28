@@ -146,7 +146,6 @@
       };
       direnv = {
         enable = true;
-        enableFishIntegration = true;
       };
       git = {
         enable = true;
