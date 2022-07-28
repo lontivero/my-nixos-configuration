@@ -15,6 +15,9 @@
     ];
 
   nixpkgs.config.allowUnfree = true;
+  virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host.enableExtensionPack = true;
+  users.extraGroups.vboxusers.members = [ "lontivero" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -65,7 +68,6 @@
     configFile = "/etc/i3.conf";
   };
 
-  virtualisation.libvirtd.enable = true;
   environment.etc."i3.conf".text = pkgs.callPackage ./i3-config.nix {};
 
   # Do not suspend when close the laptop
@@ -91,7 +93,7 @@
   users.users.lontivero = {
      isNormalUser = true;
      # hashedPassword = "$6$NDuMuWF2P3Z3aDSl$cai6jw.X8jvmaSHxRqbbzEtEVW7TApQYTex2dLprMlOvr0oYFBuCohg/HLoeH8r5b/K8Se2Kqo47pgTI6f6ND/";
-     extraGroups = [ "wheel" "networkmanager" "libvirtd" ]; # Enable ‘sudo’ for the user.
+     extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
   };
 
   # needed for vscode
