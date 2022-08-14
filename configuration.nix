@@ -149,6 +149,7 @@
       };
       git = {
         enable = true;
+        package = pkgs.gitAndTools.gitFull;
         userName = "Lucas Ontivero";
         userEmail = "lucasontivero@gmail.com";
         aliases = {
@@ -169,6 +170,12 @@
           };
           pull = {
             ff = "only";
+          };
+          sendemail = {
+            smtpserver = "smtp.gmail.com";
+            smtpuser = "lucasontivero";
+            smtpencryption = "tls";
+            smtpserverport = 587;
           };
         };
       };
