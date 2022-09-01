@@ -209,7 +209,8 @@
         enable = true;
         viAlias = true;
         vimAlias = true;
-        # package = pkgs.neovim-nightly;
+        withNodeJs = true;
+        extraPackages = [ pkgs.rnix-lsp ];
 
         plugins = with pkgs; [
           # customVim.vim-cue
