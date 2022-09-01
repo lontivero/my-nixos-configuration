@@ -27,8 +27,15 @@ in
         port = 14567;
         identityFile = zkIdentityFile;
       };
-      "zk-production" = {
+      "zk-production-old" = {
         hostname = "178.62.244.102";
+        user = zkUser;
+        proxyJump = zkJumpProxy;
+        identityFile =zkIdentityFile;
+        identitiesOnly = true;
+      };
+      "zk-production" = {
+        hostname = "82.196.6.104";
         user = zkUser;
         proxyJump = zkJumpProxy;
         identityFile =zkIdentityFile;
