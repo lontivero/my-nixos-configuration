@@ -266,15 +266,18 @@
     mplayer
     rxvt_unicode
     alacritty
+
     git
     git-crypt
     lazygit
+
     unzip
     feh
     tmux
     fzf
     jq
     ripgrep
+    weechat
     rofi
     nitrogen
     ranger
