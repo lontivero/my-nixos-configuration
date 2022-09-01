@@ -229,6 +229,7 @@
           # customVim.nvim-treesitter-playground
           # customVim.nvim-treesitter-textobjects
 
+          #vimPlugins.coc-nvim
           vimPlugins.vim-airline
           vimPlugins.vim-airline-themes
           vimPlugins.vim-gitgutter
