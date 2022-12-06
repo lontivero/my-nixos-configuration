@@ -213,23 +213,19 @@
         extraPackages = [ pkgs.rnix-lsp ];
 
         plugins = with pkgs; [
-          # customVim.vim-cue
-          # customVim.vim-fish
-          # customVim.vim-fugitive
-          # customVim.vim-misc
-          # customVim.pigeon
-          # customVim.AfterColors
+          vimPlugins.vim-cue
+          vimPlugins.vim-fugitive
 
-          # customVim.vim-nord
-          # customVim.nvim-comment
-          # customVim.nvim-lspconfig
-          # customVim.nvim-plenary # required for telescope
-          # customVim.nvim-telescope
-          # customVim.nvim-treesitter
-          # customVim.nvim-treesitter-playground
-          # customVim.nvim-treesitter-textobjects
+          vimPlugins.nvim-comment
+          vimPlugins.vim-misc
+          # vimPlugins.nvim-telescope
 
-          #vimPlugins.coc-nvim
+          vimPlugins.nvim-treesitter
+          vimPlugins.nvim-treesitter-textobjects
+
+          # vimPlugins.coc-nvim
+          vimPlugins.nvim-lspconfig
+          vimPlugins.vim-fish
           vimPlugins.vim-airline
           vimPlugins.vim-airline-themes
           vimPlugins.vim-gitgutter
