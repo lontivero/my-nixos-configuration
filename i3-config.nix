@@ -117,7 +117,7 @@ bindsym $mod+a focus parent
 #bindsym $mod+d focus child
 
 # capture screen selection with scrot 
-bindsym --release $mod+Print exec ${pkgs.scrot}/bin/scrot -s -f -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f' 
+bindsym --release $mod+Print exec ${pkgs.scrot}/bin/scrot -s -f $HOME/Screenshots/tmp.png -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
 bindsym --release $mod+Shift+Print exec ${pkgs.scrot}/bin/scrot -s -f $HOME/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
 
 # Define names for default workspaces for which we configure key bindings later on.
