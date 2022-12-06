@@ -41,8 +41,15 @@ in
         identityFile =zkIdentityFile;
         identitiesOnly = true;
       };
-      "zk-testing" = {
+      "zk-testing-old" = {
         hostname = "206.189.96.26";
+        user = zkUser;
+        proxyJump = zkJumpProxy;
+        identityFile = zkIdentityFile;
+        identitiesOnly = true;
+      };
+      "zk-testing" = {
+        hostname = "198.211.127.145";
         user = zkUser;
         proxyJump = zkJumpProxy;
         identityFile = zkIdentityFile;
