@@ -10,7 +10,7 @@
       <home-manager/nixos>
       ./ssh.nix
       ./tmux.nix
-      ./picom.nix
+      # ./picom.nix
       ./networking.nix
     ];
 
