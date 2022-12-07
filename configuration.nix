@@ -304,7 +304,7 @@
     graphviz
     pandoc
 
-    dotnet-sdk_6
+    dotnet-sdk_7
     jetbrains.rider
   ];
 
