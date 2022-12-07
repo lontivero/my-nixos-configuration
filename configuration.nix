@@ -100,6 +100,7 @@
   services.gnome.gnome-keyring.enable = true;
   home-manager.useGlobalPkgs = true;
   home-manager.users.lontivero = { pkgs, ... }: {
+    home.stateVersion = "22.05";
     gtk = {
       enable = true;
       theme = {
