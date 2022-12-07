@@ -15,8 +15,8 @@
     ];
 
   nixpkgs.config.allowUnfree = true;
-  virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.host.enableExtensionPack = true;
+  #virtualisation.virtualbox.host.enable = true;
+  #virtualisation.virtualbox.host.enableExtensionPack = true;
   users.extraGroups.vboxusers.members = [ "lontivero" ];
 
   # Use the systemd-boot EFI boot loader.
