@@ -2,8 +2,10 @@
 pkgs.writeShellScriptBin "wiki2html.sh" ''
 #!/usr/bin/env bash
 
+set -a
 TO=html
 
+SOURCE_DIRECTORY=$(dirname $7)
 SOURCE_FILE_SYNTAX="$2"
 SOURCE_FILE_EXT="$3"
 SOURCE_FILE_PATH="$5"
@@ -30,9 +32,11 @@ ROOT_PATH="''${10}"
 
 # If you have Mathjax locally use this:
 # MATHJAX="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
-MATHJAX="/usr/share/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+MATHJAX="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+#MATHJAX="/usr/share/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+set +a 
 
-PANDOC_TEMPLATE="pandoc \
+PANDOC_TEMPLATE="/home/lontivero/.local/bin/panda \
 --mathjax=$MATHJAX \
 --template=$TEMPLATE_FILE_PATH \
 --from $SOURCE_FILE_SYNTAX \
@@ -53,15 +57,11 @@ PANDOC_OUTPUT=$(echo "$PANDOC_INPUT" | $PANDOC_TEMPLATE)
 
 # Removes "file" from ![pic of sharks](file:../sharks.jpg)
 regex3='s/file://g'
+REGEX_IMAGES_RELOCATE='s/src\/images\//html\/images\//g' 
 
 echo "$PANDOC_OUTPUT" | sed -r $regex3 > "$OUTPUT_FILE_PATH"
 
 # With this you can have ![pic of sharks](file:../sharks.jpg) in your markdown file and it removes "file"
 # and the unnecesary dot html that the previous command added to the image.
 # sed 's/file://g' < /tmp/crap.html | sed 's/\(png\|jpg\|pdf\).html/\1/g' | sed -e 's/\(href=".*\)\.html/\1/g' > "$OUTPUT.html"
-
-# Copy relative
-# destination=$(cd -- "$4" && pwd) # make it an absolute path
-# cd -- "/home/rattletat/wiki/text/" &&
-    # find . -type f -regex ".*\.\(jpg\|gif\|png\|jpg\)" -exec cp {} "$destination/{}"
 ''

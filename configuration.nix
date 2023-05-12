@@ -143,6 +143,10 @@
             description = "xclip selection";
             body = "xclip -selection c $argv";
           };
+          qr = {
+            description = "Encode data as QR code";
+            body = "qrencode -o - | feh -";
+          };
         };
       };
       direnv = {
@@ -253,6 +257,7 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
+
   environment.systemPackages = with pkgs; [
     neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     curl
@@ -261,6 +266,7 @@
     htop
     dmenu
     xclip
+    qrencode
     ffmpeg
     mplayer
     rxvt_unicode
@@ -304,6 +310,7 @@
     sshfs
     graphviz
     pandoc
+    gnuplot
 
     dotnet-sdk_7
     jetbrains.rider

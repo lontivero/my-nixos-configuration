@@ -42,6 +42,7 @@ in
   set ruler           " show the cursor position all the time
   
   set nowrap          " no wrap lines
+  set noswapfile
 
   " Set encoding
   set encoding=utf-8
