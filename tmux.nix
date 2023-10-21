@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, home-manager, ... }:
 {
   home-manager.users.lontivero.programs.tmux = {
     enable = true;

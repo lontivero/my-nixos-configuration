@@ -2,12 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{ inputs, outputs, lib, pkgs, ... }:
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      <home-manager/nixos>
+      inputs.home-manager.nixosModules.home-manager
       ./ssh.nix
       ./tmux.nix
       # ./picom.nix
@@ -44,7 +44,7 @@
   
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
-  # hardware.nvidia.modesetting.enable = true;
+   hardware.nvidia.modesetting.enable = true;
 
   # do not install what I dont want
   services.gnome.core-utilities.enable = false;
