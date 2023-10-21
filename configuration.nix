@@ -327,6 +327,7 @@
     EDITOR = "nvim";
     TERMINAL = "alacritty";
     BROWSER = "firefox";
+    DOTNET_ROOT = "${pkgs.dotnet-sdk_7}";
   };
 
 
