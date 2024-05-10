@@ -181,7 +181,7 @@ mode "resize" {
         # Pressing left will shrink the window’s width.
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
-        # Pressing down will grow the window’s height.
+        # Pressing down will grow the window’s height
         bindsym j resize shrink width 10 px or 10 ppt
         bindsym k resize grow height 10 px or 10 ppt
         bindsym l resize shrink height 10 px or 10 ppt
@@ -239,7 +239,6 @@ assign [class="(?i)virtualbox"]     $ws9
 exec_always --no-startup-id ${pkgs.nitrogen}/bin/nitrogen --restore
 bindsym $mod+Pause mode "$mode_system"
 
-assign [class="Alacrity"]           $ws1
 
 
 # run special warning script

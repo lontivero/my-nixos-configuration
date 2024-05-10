@@ -27,7 +27,7 @@
   boot.plymouth.enable = true;
 
   # For nvidia test
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Set your time zone.
   time.timeZone = "America/Argentina/Buenos_Aires";
@@ -267,6 +267,7 @@
     htop
     dmenu
     xclip
+    bc
     qrencode
     ffmpeg
     mplayer
