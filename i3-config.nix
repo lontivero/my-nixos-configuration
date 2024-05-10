@@ -58,7 +58,8 @@ bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
 #bindsym $mod+d exec --no-startup-id dmenu_run
-bindsym $mod+d exec --no-startup-id ~/.config/rofi/bin/launcher_text
+#bindsym $mod+d exec --no-startup-id ~/.config/rofi/bin/launcher_text
+#bindsym $mod+d exec rofi -no-config -no-lazy-grab -show drun -modi drun -show-icons
 
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
@@ -119,6 +120,9 @@ bindsym $mod+a focus parent
 # capture screen selection with scrot 
 bindsym --release $mod+Print exec ${pkgs.scrot}/bin/scrot -s -f $HOME/Screenshots/tmp.png -e '${pkgs.xclip}/bin/xclip -selection clipboard -t image/png -i $f'
 bindsym --release $mod+Shift+Print exec ${pkgs.scrot}/bin/scrot -s -f $HOME/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
+
+# browser
+bindsym --release $mod+Shift+f exec ${pkgs.firefox}/bin/firefox
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -267,5 +271,13 @@ mode "$mode_system" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
+
+# scratchpad terminal
+exec --no-startup-id ${pkgs.alacritty}/bin/alacritty -name dropdown 
+
+bindsym $mod+Shift+Return [instance="dropdown"] scratchpad show, move position center
+
+for_window [instance="dropdown"] floating enable, resize set 800 600, move scratchpad
+
 
 ''

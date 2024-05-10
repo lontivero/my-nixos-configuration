@@ -42,9 +42,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   
-  services.xserver.videoDrivers = [ "nvidia" ];
+  #services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
-   hardware.nvidia.modesetting.enable = true;
+  #hardware.nvidia.modesetting.enable = true;
 
   # do not install what I dont want
   services.gnome.core-utilities.enable = false;
@@ -111,9 +111,9 @@
     };
     programs = {
       man.generateCaches = true;
-      bat = {
-        enable = true;
-      };
+      #bat = {
+      #  enable = true;
+      #};
       fish = {
         enable = true;
         shellInit = ''
@@ -220,10 +220,12 @@
         plugins = with pkgs; [
           vimPlugins.vim-cue
           vimPlugins.vim-fugitive
+          vimPlugins.which-key-nvim
+          vimPlugins.nvim-whichkey-setup-lua
 
           vimPlugins.nvim-comment
           vimPlugins.vim-misc
-          # vimPlugins.nvim-telescope
+          vimPlugins.telescope-nvim
 
           vimPlugins.nvim-treesitter
           vimPlugins.nvim-treesitter-textobjects
@@ -241,8 +243,7 @@
         ];
 
         # extraConfig = (import ./vim-config.nix) { inherit sources; };
-        extraConfig = pkgs.callPackage ./vim-config.nix {};
-      };
+        extraConfig = pkgs.callPackage ./vim-config.nix {};      };
       vscode = {
         enable = true;
         extensions = with pkgs.vscode-extensions; [

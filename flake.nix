@@ -22,6 +22,7 @@
       # to avoid problems caused by different versions of nixpkgs.
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hosts.url = "github:StevenBlack/hosts";
   };
 
   # `outputs` are all the build result of the flake.
@@ -34,7 +35,7 @@
   # 
   # The `@` syntax here is used to alias the attribute set of the
   # inputs's parameter, making it convenient to use inside the function.
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, hosts,... }@inputs:
   let inherit (self) outputs;
   in
   {
@@ -90,10 +91,29 @@
         # specialArgs = {...}  # pass custom arguments into all sub module.
         specialArgs = { inherit inputs outputs; };
         modules = [
+          hosts.nixosModule {
+            networking.stevenBlackHosts.enable = true;
+          }
           # Import the configuration.nix here, so that the
           # old configuration file can still take effect.
           # Note: configuration.nix itself is also a Nix Module,
-          ./configuration.nix
+          ./configuration.nix {
+            services.xserver.videoDrivers = [ "nvidia" ];
+            hardware.nvidia.modesetting.enable = true;
+          }
+        ];
+      };
+      "nixos-laptop" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+
+        specialArgs = { inherit inputs outputs ; };
+        modules = [
+          # Import the configuration.nix here, so that the
+          # old configuration file can still take effect.
+          # Note: configuration.nix itself is also a Nix Module,
+          ./configuration.nix {
+              services.xserver.videoDrivers = [];
+          }
         ];
       };
     };
