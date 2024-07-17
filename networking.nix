@@ -21,7 +21,7 @@
       hostsPath = https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts;
       hostsFile = builtins.fetchurl {
         url = hostsPath;
-        sha256 = "1j8h80mv48q7ajn7476ink4vmchxs34y5n8jf8a6nr47vl450r21"; 
+        sha256 = "106jqzfb6w0andv3f6bp9ldw26r8zyzz6sf9ahw8xycydwjzvbbr"; 
       };
     in builtins.readFile "${hostsFile}";
   };

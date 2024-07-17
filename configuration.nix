@@ -15,9 +15,20 @@
     ];
 
   nixpkgs.config.allowUnfree = true;
-  #virtualisation.virtualbox.host.enable = true;
-  #virtualisation.virtualbox.host.enableExtensionPack = true;
-  users.extraGroups.vboxusers.members = [ "lontivero" ];
+
+  # Manage the virtualisation services
+  virtualisation = {
+    libvirtd = {
+      enable = true;
+      qemu = {
+        swtpm.enable = true;
+        ovmf.enable = true;
+        ovmf.packages = [ pkgs.OVMFFull.fd ];
+      };
+    };
+    spiceUSBRedirection.enable = true;
+  };
+  services.spice-vdagentd.enable = true;
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -27,7 +38,7 @@
   boot.plymouth.enable = true;
 
   # For nvidia test
-  #boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Set your time zone.
   time.timeZone = "America/Argentina/Buenos_Aires";
@@ -42,15 +53,13 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   
-  #services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
-  #hardware.nvidia.modesetting.enable = true;
 
   # do not install what I dont want
-  services.gnome.core-utilities.enable = false;
+  # services.gnome.core-utilities.enable = false;
 
   # Enable the GNOME Desktop Environment.
-  services.xserver.displayManager.defaultSession = "none+i3";
+  services.displayManager.defaultSession = "none+i3";
   services.xserver.desktopManager.xterm.enable = false;
 
   documentation.man.generateCaches = true;
@@ -74,8 +83,8 @@
   services.logind.lidSwitch = "ignore";
 
   # Configure keymap in X11
-  services.xserver.layout = "latam,us";
-  services.xserver.xkbOptions = "eurosign:e, compose:menu, grp:alt_space_toggle";
+  services.xserver.xkb.layout = "latam,us";
+  services.xserver.xkb.options = "eurosign:e, compose:menu, grp:alt_space_toggle";
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -93,8 +102,8 @@
   users.users.lontivero = {
      isNormalUser = true;
      # hashedPassword = "$6$NDuMuWF2P3Z3aDSl$cai6jw.X8jvmaSHxRqbbzEtEVW7TApQYTex2dLprMlOvr0oYFBuCohg/HLoeH8r5b/K8Se2Kqo47pgTI6f6ND/";
-     extraGroups = [ "wheel" "networkmanager" ]; # Enable ‘sudo’ for the user.
-  };
+     extraGroups = [ "wheel" "networkmanager" "libvirtd" ]; # Enable ‘sudo’ for the user.
+   };
 
   # needed for vscode
   services.gnome.gnome-keyring.enable = true;
@@ -189,9 +198,6 @@
 
         settings = {
           env.TERM = "xterm-256color";
-
-          key_bindings = [
-          ];
         };
       };
       i3status = {
@@ -215,7 +221,6 @@
         viAlias = true;
         vimAlias = true;
         withNodeJs = true;
-        extraPackages = [ pkgs.rnix-lsp ];
 
         plugins = with pkgs; [
           vimPlugins.vim-cue
@@ -314,8 +319,11 @@
     pandoc
     gnuplot
 
-    dotnet-sdk_7
-    jetbrains.rider
+    virt-manager
+    spice spice-gtk
+    spice-protocol
+    win-virtio
+    win-spice
   ];
 
   # Solves problem for binaries that cannot find the interpreter
@@ -345,7 +353,7 @@
   fonts = {
     fontDir.enable = true;
     enableGhostscriptFonts = true;
-    fonts = with pkgs; [
+    packages = with pkgs; [
       powerline-fonts
       ubuntu_font_family
       liberation_ttf
