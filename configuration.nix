@@ -17,18 +17,6 @@
   nixpkgs.config.allowUnfree = true;
 
   # Manage the virtualisation services
-  virtualisation = {
-    libvirtd = {
-      enable = true;
-      qemu = {
-        swtpm.enable = true;
-        ovmf.enable = true;
-        ovmf.packages = [ pkgs.OVMFFull.fd ];
-      };
-    };
-    spiceUSBRedirection.enable = true;
-  };
-  services.spice-vdagentd.enable = true;
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -102,7 +90,7 @@
   users.users.lontivero = {
      isNormalUser = true;
      # hashedPassword = "$6$NDuMuWF2P3Z3aDSl$cai6jw.X8jvmaSHxRqbbzEtEVW7TApQYTex2dLprMlOvr0oYFBuCohg/HLoeH8r5b/K8Se2Kqo47pgTI6f6ND/";
-     extraGroups = [ "wheel" "networkmanager" "libvirtd" ]; # Enable ‘sudo’ for the user.
+     extraGroups = [ "wheel" "networkmanager" "libvirtd" "docker" ]; # Enable ‘sudo’ for the user.
    };
 
   # needed for vscode
@@ -324,6 +312,8 @@
     spice-protocol
     win-virtio
     win-spice
+
+    pinentry-tty
   ];
 
   # Solves problem for binaries that cannot find the interpreter
@@ -367,9 +357,10 @@
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
-    # pinentryFlavor = "tty";
+    pinentryPackage = pkgs.pinentry-tty;
   };
-
+  services.pcscd.enable = true;
+  
   nix = {
     package = pkgs.nixFlakes;
     settings.auto-optimise-store = true;
