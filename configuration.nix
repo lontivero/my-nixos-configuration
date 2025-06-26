@@ -269,6 +269,7 @@
 
     git
     git-crypt
+    git-absorb
     lazygit
 
     unzip
