@@ -17,12 +17,12 @@
 
     networkmanager.enable = true;
 
-    extraHosts = let
-      hostsPath = https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts;
-      hostsFile = builtins.fetchurl {
-        url = hostsPath;
-        sha256 = "106jqzfb6w0andv3f6bp9ldw26r8zyzz6sf9ahw8xycydwjzvbbr"; 
-      };
-    in builtins.readFile "${hostsFile}";
+    #extraHosts = let
+    #  hostsPath = https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts;
+    #  hostsFile = builtins.fetchurl {
+    #    url = hostsPath;
+    #    sha256 = "0vad16zbqci3lfpai8yq51kcy0b9xwl147xwvnvy6dspiwxyay2m"; 
+    #  };
+    #in builtins.readFile "${hostsFile}";
   };
 }
