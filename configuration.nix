@@ -380,11 +380,13 @@
   services.bitcoind.main = {
     enable = true;
     prune = 8000;
+    group = "users";
     extraConfig = ''
       assumevalid = 00000000000000000000981da4d3caaea822ff0da785bd3b42d4bdf9051f8f3a
       blocksonly = 1
       blockfilterindex = 1
       disablewallet = 1
+      startupnotify = chmod g=r /var/lib/bitcoind-main/.cookie
       '';
   };
 
