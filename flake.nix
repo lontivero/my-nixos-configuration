@@ -12,10 +12,10 @@
     # which represents the GitHub repository URL + branch/commit-id/tag.
 
     # Official NixOS package source, using nixos-unstable branch here
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     # home-manager, used for managing user configuration
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/release-25.05";
       # The `follows` keyword in inputs is used for inheritance.
       # Here, `inputs.nixpkgs` of home-manager is kept consistent with
       # the `inputs.nixpkgs` of the current flake,
@@ -97,10 +97,23 @@
           # Import the configuration.nix here, so that the
           # old configuration file can still take effect.
           # Note: configuration.nix itself is also a Nix Module,
-          ./configuration.nix {
+          ./configuration.nix 
+          ({ config, pkgs, ... }: {
             services.xserver.videoDrivers = [ "nvidia" ];
-            hardware.nvidia.modesetting.enable = true;
-          }
+            hardware.nvidia = {
+              package = config.boot.kernelPackages.nvidiaPackages.stable;
+              open = false;
+              nvidiaSettings = true;
+              powerManagement.enable = false;  
+              powerManagement.finegrained = false;
+              modesetting.enable = true;
+              prime = {
+                #intelBusId = "PCI:0:2:0";
+                nvidiaBusId = "PCI:1:0:0";
+                amdgpuBusId = "PCI:5:0:0";
+              };
+            };
+          })
         ];
       };
       "nixos-laptop" = nixpkgs.lib.nixosSystem {

@@ -41,13 +41,40 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   
-  hardware.opengl.enable = true;
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+  
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = true;
+
+    open = false;
+
+    prime = {
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+
+      amdgpuBusId = "PCI:5:0:0";  # Your AMD GPU
+      nvidiaBusId = "PCI:1:0:0";  # Your NVIDIA GPU
+    };
+  };
 
   # do not install what I dont want
   # services.gnome.core-utilities.enable = false;
 
   # Enable the GNOME Desktop Environment.
   services.displayManager.defaultSession = "none+i3";
+  services.xserver.displayManager.sessionCommands = ''
+    # Link NVIDIA (provider 1) outputs to AMD (provider 0)
+    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 1 0
+    ${pkgs.xorg.xrandr}/bin/xrandr --auto
+  '';
   services.xserver.desktopManager.xterm.enable = false;
 
   documentation.man.generateCaches = true;
@@ -78,8 +105,7 @@
   # services.printing.enable = true;
 
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  services.pulseaudio.enable = false;
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -237,15 +263,6 @@
 
         # extraConfig = (import ./vim-config.nix) { inherit sources; };
         extraConfig = pkgs.callPackage ./vim-config.nix {};      };
-      vscode = {
-        enable = true;
-        extensions = with pkgs.vscode-extensions; [
-          # Some example extensions...
-          dracula-theme.theme-dracula
-          vscodevim.vim
-          yzhang.markdown-all-in-one
-        ];
-      };
     };
   };
 
@@ -264,7 +281,7 @@
     qrencode
     ffmpeg
     mplayer
-    rxvt_unicode
+    rxvt-unicode-unwrapped
     alacritty
 
     git
@@ -328,7 +345,6 @@
     EDITOR = "nvim";
     TERMINAL = "alacritty";
     BROWSER = "firefox";
-    DOTNET_ROOT = "${pkgs.dotnet-sdk_7}";
   };
 
 
@@ -348,7 +364,8 @@
       powerline-fonts
       ubuntu_font_family
       liberation_ttf
-      (nerdfonts.override { fonts = [ "FiraCode" "Monoid" ]; })
+      nerd-fonts.fira-code
+      nerd-fonts.monoid
     ];
   };
 
@@ -363,7 +380,7 @@
   services.pcscd.enable = true;
   
   nix = {
-    package = pkgs.nixFlakes;
+    package = pkgs.nixVersions.stable;
     settings.auto-optimise-store = true;
     gc = {
       automatic = true;
@@ -379,13 +396,15 @@
 
   services.bitcoind.main = {
     enable = true;
-    prune = 8000;
+    prune = 18000;
     group = "users";
     extraConfig = ''
       assumevalid = 00000000000000000000981da4d3caaea822ff0da785bd3b42d4bdf9051f8f3a
       blocksonly = 1
       blockfilterindex = 1
+      peerblockfilters = 1
       disablewallet = 1
+      fallbackfee=0.00001
       startupnotify = chmod g=r /var/lib/bitcoind-main/.cookie
       '';
   };
