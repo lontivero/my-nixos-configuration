@@ -28,7 +28,6 @@
 
       vimPlugins.vim-markdown
       vimPlugins.vim-nix
-      vimPlugins.vimwiki
     ];
 
     # extraConfig = (import ../../vim-config.nix) { inherit sources; };
