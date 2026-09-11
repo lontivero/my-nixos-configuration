@@ -210,6 +210,25 @@ in
 
         # Dim and blur everything behind a fullscreen window.
         "no_blur true, match:class ^(firefox)$"
+
+        # The scratchpad terminal -- see the `workspace` block below, which is
+        # what actually spawns it. Floating and centred, so it reads as a
+        # dropdown over the current workspace instead of filling the output.
+        #
+        # NB: the size is in PIXELS on purpose. Percentages do not parse in
+        # 0.55's rule grammar -- `size 70% 60%` and every variant tried
+        # (70%x60%, `exact 70% 60%`, spaces around the %) fail the same silent
+        # way the old `match:class =` form did: hyprctl answers "ok", no config
+        # error is raised, and the window just keeps alacritty's default
+        # 800x600. Verify a change here by reading back the real geometry:
+        #
+        #   hyprctl -j clients | jq -r '.[]|select(.class=="dropdown")|.size'
+        #
+        # 1344x648 is 70% x 60% of the 1920x1080 both outputs run at; if that
+        # ever changes, recompute it by hand.
+        "float true, match:class ^(dropdown)$"
+        "size 1344 648, match:class ^(dropdown)$"
+        "center true, match:class ^(dropdown)$"
       ];
 
       # The scratchpad terminal, replacing the i3 `dropdown` instance.
@@ -264,7 +283,11 @@ in
         "$mod SHIFT,space,togglefloating,"
         "$mod,s,pseudo," # i3 had `layout stacking`; no analogue, pseudotile instead
 
-        # Scratchpad
+        # Scratchpad. $mod+space is the primary key; $mod+Shift+Return is
+        # kept as the muscle-memory alias from the i3 dropdown. Neither
+        # collides: $mod+Shift+space is togglefloating above, and the keyboard
+        # layout toggle is on ALT+space (input:kb_options grp:alt_space_toggle).
+        "$mod,space,togglespecialworkspace,dropdown"
         "$mod SHIFT,Return,togglespecialworkspace,dropdown"
 
         # Screenshots -- grim/slurp replace scrot, wl-copy replaces xclip
