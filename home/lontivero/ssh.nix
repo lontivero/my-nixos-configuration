@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 
 let
-  lib = pkgs.stdenv.lib;
   wasabiUser = "user";
   wasabiFile = "~/.ssh/wasabi-server.key";
 in  

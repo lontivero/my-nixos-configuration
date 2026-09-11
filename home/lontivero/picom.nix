@@ -2,10 +2,10 @@
 {
   services.picom = {
     enable = true;
-    backend = "glx";
+    backend = "xrender"; # try "glx" if xrender doesn't help
     fade = true;
     fadeDelta = 5;
-    opacityRule = [ 
+    opacityRules = [
       "100:name *= 'i3lock'"
       "99:fullscreen"
       "90:class_g = 'Alacritty' && focused"
@@ -20,7 +20,6 @@
       use-ewmh-active-win = true;
 
       unredir-if-possible = false;
-      backend = "xrender"; # try "glx" if xrender doesn't help
       vsync = true;
     };
   };

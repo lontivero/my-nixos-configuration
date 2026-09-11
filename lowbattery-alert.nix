@@ -47,7 +47,7 @@ pkgs.writeShellScriptBin "lowbattery-alert.sh" ''
         SLEEP_TIME=10
       fi
 
-      sleep $SLEEP_TIMEm
+      sleep $SLEEP_TIME
 
     done
   ''
