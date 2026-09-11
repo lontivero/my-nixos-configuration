@@ -95,6 +95,44 @@
     pulse.enable = true;
   };
 
+  # Thunar, the graphical file manager -- there was none before, only ranger,
+  # which is a TUI and so cannot drag and drop at all.
+  #
+  # Chosen over Nautilus because it is GTK3 and therefore picks up the Nordic
+  # theme from home/lontivero/gtk.nix; Nautilus is GTK4/libadwaita and largely
+  # ignores GTK themes. It is also a native Wayland client, so dragging to and
+  # from other Wayland clients (Firefox already is one) goes over
+  # wl_data_device rather than being bridged through XWayland.
+  #
+  # NB: this module turns on programs.xfconf by itself -- Thunar keeps its
+  # settings there, and without it nothing changed in the UI persists.
+  programs.thunar = {
+    enable = true;
+    plugins = with pkgs.xfce; [
+      thunar-archive-plugin # "Extract Here" / "Create Archive" context menu
+      thunar-volman # act on newly plugged-in drives and media
+      thunar-media-tags-plugin # audio tags in properties and bulk rename
+    ];
+  };
+
+  # Thunar needs all three of these and pulls in none of them itself:
+  services.gvfs.enable = true; # Move to Trash, and sftp:// / smb:// mounts
+  services.tumbler.enable = true; # thumbnails for images, video and PDFs
+  services.udisks2.enable = true; # mounting removable drives, what thunar-volman drives
+
+  # With no explicit default, inode/directory resolves to whichever installed
+  # application claims it first. Today that is ranger, so "Open containing
+  # folder" from Firefox opens a TUI; once Thunar claims it too the winner
+  # would simply be undefined.
+  #
+  # This writes /etc/xdg/mimeapps.list, which sits BELOW ~/.config/mimeapps.list
+  # in the XDG lookup order, so the user file is left alone -- it holds the
+  # claude-cli scheme handler, and having home-manager take it over would turn
+  # it into a read-only symlink into the store.
+  xdg.mime.defaultApplications = {
+    "inode/directory" = "thunar.desktop";
+  };
+
   environment.etc."i3.conf".text = pkgs.callPackage ./i3-config.nix {};
 
   # Do not suspend when close the laptop
