@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
 
+    # Only for the dev shell below, which needs a nix newer than the one
+    # the release branch ships. The system is never built from this.
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       # Keep home-manager on the same nixpkgs as the system, so both
@@ -15,7 +19,7 @@
     hosts.url = "github:StevenBlack/hosts";
   };
 
-  outputs = { self, nixpkgs, home-manager, hosts, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, hosts, ... }@inputs:
   let inherit (self) outputs;
   in
   {
@@ -35,5 +39,18 @@
         modules = [ ./hosts/nixos ];
       };
     };
+
+    # `nix develop` — a newer nix and nixos-rebuild than the running
+    # system's, for when a rebuild needs a feature the system nix lacks.
+    # Replaces the old shell.nix, which fetched an unpinned tarball;
+    # this tracks nixos-unstable through flake.lock instead.
+    devShells.x86_64-linux.default =
+      let pkgs = nixpkgs-unstable.legacyPackages.x86_64-linux;
+      in pkgs.mkShell {
+        packages = with pkgs; [
+          nixVersions.latest
+          nixos-rebuild
+        ];
+      };
   };
 }
