@@ -178,30 +178,38 @@ in
 
       #### Window rules #####################################################
       # Ported from the i3 `assign` block, with class names refreshed.
-      # Hyprland 0.53 rewrote this syntax wholesale, and the old form is
-      # rejected outright -- it is what produced the wall of "Config error"
-      # toasts. Each entry is now a comma-separated list of `field = value`:
-      # effects are named in snake_case (noblur -> no_blur) and matchers are
-      # spelled `match:<prop>`. class/title are still regexes, so the anchors
-      # carry over unchanged.
+      # Hyprland 0.53 rewrote this syntax wholesale; the old form is rejected
+      # outright, which is what produced the wall of "Config error" toasts.
+      #
+      # The grammar is comma-separated `<name> <value>` pairs, where the
+      # SEPARATOR IS A SPACE, not an "=". handleWindowrule splits each element
+      # at its first space and takes everything after it as the value, so
+      # `match:class = ^(foo)$` parses happily and then matches nothing at all,
+      # because the regex it stores is literally "= ^(foo)$". That failure is
+      # silent -- hyprctl reports "ok" and no config error is raised.
+      #
+      # Effects are snake_case (noblur -> no_blur) and take an explicit value,
+      # so a boolean rule is `float true`, never a bare `float`. Matchers are
+      # spelled `match:<prop>`; class/title are still regexes, so the anchors
+      # carry over from the old config unchanged.
       windowrule = [
-        "workspace = 1, match:class = ^([Aa]lacritty)$"
-        "workspace = 2, match:class = ^(firefox|chromium-browser|Chromium)$"
-        "workspace = 3, match:class = ^([Tt]hunar|org.gnome.Nautilus)$"
-        "workspace = 4, match:class = ^([Cc]ode|jetbrains-rider|[Rr]ider)$"
-        "workspace = 5, match:class = ^(vlc|mpv|[Mm]player)$"
-        "workspace = 6, match:class = ^([Ss]ignal|[Ss]ignal-desktop)$"
-        "workspace = 7, match:class = ^([Gg]imp|[Ii]nkscape|libreoffice.*|org.pwmt.zathura)$"
-        "workspace = 8, match:class = ^([Tt]ransmission.*)$"
-        "workspace = 9, match:class = ^([Ll]xappearance|[Pp]avucontrol|virt-manager)$"
+        "workspace 1, match:class ^([Aa]lacritty)$"
+        "workspace 2, match:class ^(firefox|chromium-browser|Chromium)$"
+        "workspace 3, match:class ^([Tt]hunar|org.gnome.Nautilus)$"
+        "workspace 4, match:class ^([Cc]ode|jetbrains-rider|[Rr]ider)$"
+        "workspace 5, match:class ^(vlc|mpv|[Mm]player)$"
+        "workspace 6, match:class ^([Ss]ignal|[Ss]ignal-desktop)$"
+        "workspace 7, match:class ^([Gg]imp|[Ii]nkscape|libreoffice.*|org.pwmt.zathura)$"
+        "workspace 8, match:class ^([Tt]ransmission.*)$"
+        "workspace 9, match:class ^([Ll]xappearance|[Pp]avucontrol|virt-manager)$"
 
         # Float the small utility windows rather than tiling them.
-        "float = true, match:class = ^([Pp]avucontrol|[Ll]xappearance|nm-connection-editor)$"
-        "float = true, match:title = ^(Picture-in-Picture)$"
-        "pin = true, match:title = ^(Picture-in-Picture)$"
+        "float true, match:class ^([Pp]avucontrol|[Ll]xappearance|nm-connection-editor)$"
+        "float true, match:title ^(Picture-in-Picture)$"
+        "pin true, match:title ^(Picture-in-Picture)$"
 
         # Dim and blur everything behind a fullscreen window.
-        "no_blur = true, match:class = ^(firefox)$"
+        "no_blur true, match:class ^(firefox)$"
       ];
 
       # The scratchpad terminal, replacing the i3 `dropdown` instance.
