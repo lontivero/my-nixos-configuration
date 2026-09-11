@@ -6,6 +6,12 @@
     vimAlias = true;
     withNodeJs = true;
 
+    # 26.05 flipped both of these to false by default. None of the plugins
+    # below use the ruby or python3 remote-plugin hosts, so take the new
+    # default -- stated explicitly so the option stops warning about it.
+    withRuby = false;
+    withPython3 = false;
+
     plugins = with pkgs; [
       vimPlugins.vim-cue
       vimPlugins.vim-fugitive

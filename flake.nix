@@ -2,14 +2,14 @@
   description = "lontivero's NixOS Flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     # Only for the dev shell below, which needs a nix newer than the one
     # the release branch ships. The system is never built from this.
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
+      url = "github:nix-community/home-manager/release-26.05";
       # Keep home-manager on the same nixpkgs as the system, so both
       # halves of the configuration are built from one package set.
       inputs.nixpkgs.follows = "nixpkgs";

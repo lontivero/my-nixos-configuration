@@ -43,16 +43,20 @@
   # do not install what I dont want
   # services.gnome.core-utilities.enable = false;
 
-  # Enable the GNOME Desktop Environment.
-  services.displayManager.defaultSession = "none+i3";
+  # Hyprland is the default session. The i3 block below stays enabled on
+  # purpose, so "none+i3" remains selectable at the login screen -- this is
+  # a hybrid-graphics laptop and the X11 session is the fallback if a
+  # Hyprland or NVIDIA update ever breaks the Wayland session.
+  services.displayManager.defaultSession = "hyprland";
   services.xserver.desktopManager.xterm.enable = false;
 
-  documentation.man.generateCaches = true;
+  documentation.man.cache.enable = true;
 
   environment.pathsToLink = [ "/libexec" "/share/fish" ];
   services.xserver.windowManager.i3 = {
     enable = true;
-    package = pkgs.i3-gaps;
+    # NB: the i3-gaps fork is gone; gaps are upstream i3 since 4.22,
+    # so this uses the default pkgs.i3 rather than naming a package.
     extraPackages = with pkgs; [
       dmenu
       i3status
@@ -62,10 +66,39 @@
     configFile = "/etc/i3.conf";
   };
 
+  # Hyprland. The system module provides the session file, the polkit
+  # rules and the xdg-desktop-portal wiring; the actual configuration is a
+  # home-manager module in home/lontivero/hyprland.nix.
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
+
+  # xdg-desktop-portal-hyprland comes with programs.hyprland and handles
+  # screencast/screenshot. The GTK portal is added for the file chooser,
+  # which the Hyprland portal deliberately does not implement.
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # hyprlock authenticates through PAM and needs its own service entry,
+  # otherwise every unlock attempt fails regardless of the password.
+  security.pam.services.hyprlock = { };
+
+  # Enabled implicitly by other modules today, but stated explicitly
+  # because the volume keys and the waybar audio module both drive
+  # wireplumber directly -- this should not depend on an accident.
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
+  };
+
   environment.etc."i3.conf".text = pkgs.callPackage ./i3-config.nix {};
 
   # Do not suspend when close the laptop
-  services.logind.lidSwitch = "ignore";
+  services.logind.settings.Login.HandleLidSwitch = "ignore";
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "latam,us";
@@ -146,11 +179,21 @@
     dunst
     viewnior
     mpd
-    mpc_cli
+    mpc
     acpi
     brightnessctl
-    scrot
     libnotify
+
+    # Wayland equivalents of the X11 tools above. scrot, xclip and nitrogen
+    # are kept because the i3 fallback session still uses them.
+    scrot
+    grim          # screenshots        (X11: scrot)
+    slurp         # region selection   (X11: scrot -s)
+    wl-clipboard  # wl-copy/wl-paste   (X11: xclip)
+    wev           # key event debugger (X11: xev)
+    pavucontrol
+    papirus-icon-theme
+    hyprpolkitagent
 
     lxappearance
     networkmanagerapplet
@@ -164,7 +207,7 @@
     virt-manager
     spice spice-gtk
     spice-protocol
-    win-virtio
+    virtio-win
     win-spice
 
     pinentry-tty
@@ -200,7 +243,7 @@
     enableGhostscriptFonts = true;
     packages = with pkgs; [
       powerline-fonts
-      ubuntu_font_family
+      ubuntu-classic
       liberation_ttf
       nerd-fonts.fira-code
       nerd-fonts.monoid

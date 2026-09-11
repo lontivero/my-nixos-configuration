@@ -10,7 +10,7 @@ pkgs.writeShellScriptBin "lowbattery-alert.sh" ''
 
     function launchNagbar
     {
-      ${pkgs.i3-gaps}/bin/i3-nagbar -m 'Battery Low!!' &
+      ${pkgs.i3}/bin/i3-nagbar -m 'Battery Low!!' &
       NAGBAR_PID=$!
     }
 

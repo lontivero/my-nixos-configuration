@@ -10,7 +10,16 @@
     ./fish.nix
     ./git.nix
     ./gtk.nix
-    ./i3status.nix
+
+    # Hyprland desktop. theme.nix is deliberately NOT in this list: it is a
+    # plain attrset of colours that the modules below import directly.
+    ./hyprland.nix
+    ./waybar.nix
+    ./rofi.nix
+    ./dunst.nix
+    ./lock.nix
+    ./wallpaper.nix
+    ./i3status.nix   # still used by the i3 fallback session
     ./neovim.nix
     ./ssh.nix
     ./tmux.nix

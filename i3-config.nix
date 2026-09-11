@@ -168,7 +168,7 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
-# Show gaps between open windows; requires i3-gaps fork
+# Show gaps between open windows (upstream i3 since 4.22)
 gaps inner 32
 
 # Windows have a border of 4 pixels; replace pixel with normal to show titlebar
