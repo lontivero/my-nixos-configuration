@@ -1,0 +1,6 @@
+# nixos-rebuild / nix build output symlinks
+result
+result-*
+
+# Upstream kickstart.nvim checkout with its own .git; not managed by Nix.
+nvim/
