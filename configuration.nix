@@ -2,7 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ inputs, outputs, lib, pkgs, ... }:
+{ config, inputs, outputs, lib, pkgs, ... }:
+let
+  # Where the NixOS modules collect the .desktop files for every enabled
+  # session -- share/wayland-sessions for Hyprland, share/xsessions for i3.
+  # lightdm found these on its own; greetd has to be pointed at them.
+  sessionDesktops = config.services.displayManager.sessionData.desktops;
+in
 {
   # Shared system configuration. Hardware, hostname and anything else
   # specific to a single machine lives in hosts/<name>/ instead.
@@ -43,11 +49,70 @@
   # do not install what I dont want
   # services.gnome.core-utilities.enable = false;
 
-  # Hyprland is the default session. The i3 block below stays enabled on
-  # purpose, so "none+i3" remains selectable at the login screen -- this is
-  # a hybrid-graphics laptop and the X11 session is the fallback if a
-  # Hyprland or NVIDIA update ever breaks the Wayland session.
-  services.displayManager.defaultSession = "hyprland";
+  #### Login manager ####################################################
+  #
+  # greetd runs tuigreet directly on VT1. No X server is involved, so seat0
+  # is already active by the time the session command runs.
+  #
+  # This replaces lightdm, which ran an X11 greeter and handed off from it
+  # to a Wayland session. That handover is a race, and on 2026-09-11 it
+  # started losing it: Hyprland opened the seat one to two seconds before
+  # the greeter let go, logind still counted the greeter as the active
+  # session, and aquamarine set libinput up against a seat whose devices it
+  # was not yet allowed to open. Every keyboard was then lost for the life
+  # of the session -- the pointer survived only because USB re-enumerated
+  # it a moment later, which is what made it look like a dead keyboard
+  # rather than a dead session. The tell in the log is
+  #
+  #   journalctl -t xsession -b -1 | grep 'Session is not active'
+  #
+  # which appears in exactly the boots that came up with no keyboard, and
+  # in none of the ones that came up healthy.
+  #
+  # The i3 block below stays enabled on purpose, so "i3" remains selectable
+  # at the login screen -- this is a hybrid-graphics laptop and the X11
+  # session is the fallback if a Hyprland or NVIDIA update ever breaks the
+  # Wayland one. Press F2 at the greeter to pick it.
+  #
+  # NB: services.greetd.vt no longer exists. The VT is fixed to 1, and the
+  # module disables autovt@tty1 so getty does not fight for it.
+  services.xserver.displayManager.lightdm.enable = false;
+
+  services.greetd = {
+    enable = true;
+    # Keeps systemd's own boot output from being drawn over the TUI.
+    useTextGreeter = true;
+    settings.default_session.command = lib.concatStringsSep " " [
+      "${pkgs.greetd.tuigreet}/bin/tuigreet"
+      "--time"
+      "--asterisks"
+      "--remember" # pre-fill the last username
+      "--remember-session" # and re-select the session it was used with
+      "--sessions ${sessionDesktops}/share/wayland-sessions"
+      "--xsessions ${sessionDesktops}/share/xsessions"
+      # tuigreet's default wrapper is `startx /usr/bin/env`, and neither of
+      # those paths exists here. X11 sessions need a wrapper at all because
+      # greetd hands them a bare VT, whereas the NixOS xsession script only
+      # launches the window manager and assumes a server is already up.
+      "--xsession-wrapper '${pkgs.xinit}/bin/startx ${pkgs.coreutils}/bin/env'"
+      # What runs before anything has been remembered, i.e. the first login
+      # after this change. Same binary hyprland.desktop names; the three
+      # variables below are the ones that .desktop file would have exported
+      # and are set by hand here because --cmd bypasses it.
+      "--cmd ${config.programs.hyprland.package}/bin/start-hyprland"
+      "--env XDG_CURRENT_DESKTOP=Hyprland"
+      "--env XDG_SESSION_DESKTOP=hyprland"
+      "--env DESKTOP_SESSION=hyprland"
+    ];
+  };
+
+  # Gives startx a NixOS-aware /etc/X11/xinit/xserverrc, so the X server the
+  # i3 fallback brings up is the configured one with the configured
+  # arguments. This is not a display manager and does not compete with
+  # greetd; it exists only so --xsession-wrapper above has a working startx
+  # to call.
+  services.xserver.displayManager.startx.enable = true;
+
   services.xserver.desktopManager.xterm.enable = false;
 
   documentation.man.cache.enable = true;
