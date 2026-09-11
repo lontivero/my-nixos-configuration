@@ -316,6 +316,7 @@ in
     pinentry-tty
 
     signal-desktop
+    spotify
   ];
 
   # Solves problem for binaries that cannot find the interpreter

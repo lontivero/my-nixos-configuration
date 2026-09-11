@@ -12,6 +12,15 @@ let
   accent = c "accent";
   yellow = c "yellow";
   red = c "red";
+
+  # The F1 cheatsheet, built as its own little package so the binding below
+  # points at a store path rather than at a script someone has to remember to
+  # keep executable.
+  tmuxHelp = pkgs.writeShellApplication {
+    name = "tmux-help";
+    runtimeInputs = with pkgs; [ less ];
+    text = builtins.readFile ./scripts/tmux-help.sh;
+  };
 in
 {
   programs.tmux = {
@@ -75,6 +84,16 @@ in
       bind -r J resize-pane -D 5
       bind -r K resize-pane -U 5
       bind -r L resize-pane -R 5
+
+      #### Help ###########################################################
+      #
+      # F1 with no prefix, because the whole point is to reach it without
+      # remembering a key. NB: -n binds it globally, so F1 no longer reaches
+      # anything running inside tmux -- nothing here uses it, and nvim is
+      # driven by :help rather than F1.
+      #
+      # display-popup draws over the current pane and closes when less exits.
+      bind -n F1 display-popup -E -w 80 -h 90% "${tmuxHelp}/bin/tmux-help"
 
       # Be faster switching windows
       bind C-n next-window

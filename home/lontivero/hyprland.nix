@@ -60,8 +60,14 @@ in
         # else runs. Re-pin it only if a GPU is actually chosen wrong, and
         # read the log first to decide which order to ask for.
         "LIBVA_DRIVER_NAME,radeonsi" # video decode on the iGPU, not NVIDIA
+
+        # The cursor theme itself is declared once, in cursor.nix. home-manager
+        # exports these two from there as well, but only into login shells, and
+        # greetd execs start-hyprland directly without going through one --
+        # so they are stated here too, where the compositor and everything it
+        # spawns is guaranteed to see them.
+        "XCURSOR_THEME,Bibata-Modern-Classic"
         "XCURSOR_SIZE,24"
-        "HYPRCURSOR_SIZE,24"
         "NIXOS_OZONE_WL,1" # Electron/Chromium apps run native Wayland
       ];
 
@@ -174,6 +180,19 @@ in
       exec-once = [
         "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator"
         "${pkgs.hyprpolkitagent}/libexec/hyprpolkitagent"
+
+        # Belt and braces on the cursor: the env above covers every client
+        # Hyprland spawns, this covers Hyprland's own pointer.
+        "hyprctl setcursor Bibata-Modern-Classic 24"
+
+        # The session always comes up with a terminal and a browser. The
+        # [workspace N silent] prefix places each one directly instead of
+        # letting it open on the focused workspace and then be moved by the
+        # windowrules below; "silent" means the workspace is not switched to,
+        # so the session settles on workspace 1 with the terminal focused
+        # rather than following Firefox over to workspace 2.
+        "[workspace 1 silent] ${terminal}"
+        "[workspace 2 silent] ${browser}"
       ];
 
       #### Window rules #####################################################
@@ -197,7 +216,7 @@ in
         "workspace 2, match:class ^(firefox|chromium-browser|Chromium)$"
         "workspace 3, match:class ^([Tt]hunar|org.gnome.Nautilus)$"
         "workspace 4, match:class ^([Cc]ode|jetbrains-rider|[Rr]ider)$"
-        "workspace 5, match:class ^(vlc|mpv|[Mm]player)$"
+        "workspace 5, match:class ^(vlc|mpv|[Mm]player|[Ss]potify)$"
         "workspace 6, match:class ^([Ss]ignal|[Ss]ignal-desktop)$"
         "workspace 7, match:class ^([Gg]imp|[Ii]nkscape|libreoffice.*|org.pwmt.zathura)$"
         "workspace 8, match:class ^([Tt]ransmission.*)$"
@@ -229,6 +248,29 @@ in
         "float true, match:class ^(dropdown)$"
         "size 1344 648, match:class ^(dropdown)$"
         "center true, match:class ^(dropdown)$"
+      ];
+
+      #### Layer rules ######################################################
+      #
+      # rofi draws itself on a layer-shell surface named "rofi"; blurring it
+      # is what makes the translucent launcher in rofi.nix read as frosted
+      # glass rather than as a window someone left half-faded.
+      #
+      # NB: layerrule took the same grammar change in 0.55 that windowrule did
+      # (see the windowrule block above) -- `<effect> <value>, match:namespace <regex>`.
+      # The old `blur, rofi` form is rejected outright with "invalid field
+      # blur: missing a value", and `namespace ^(rofi)$` without the `match:`
+      # prefix with "invalid field type namespace". Probe a rule before
+      # committing it:
+      #
+      #   hyprctl keyword layerrule "blur true, match:namespace ^(rofi)$"
+      #
+      # ignorezero is gone too; ignore_alpha is what replaced it. At 0.1 the
+      # blur skips the fully transparent pixels outside the rounded corners,
+      # which is what stops them smearing.
+      layerrule = [
+        "blur true, match:namespace ^(rofi)$"
+        "ignore_alpha 0.1, match:namespace ^(rofi)$"
       ];
 
       # The scratchpad terminal, replacing the i3 `dropdown` instance.

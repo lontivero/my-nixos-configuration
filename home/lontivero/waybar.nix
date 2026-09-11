@@ -1,6 +1,22 @@
 { pkgs, ... }:
 let
   theme = import ./theme.nix;
+
+  # Both of these are custom modules rather than tweaks to a built-in one,
+  # because what they are for is printing a CONSTANT-WIDTH string -- see the
+  # comment on modules-right. writeShellApplication gives them a PATH and runs
+  # shellcheck at build time, so a typo fails the rebuild instead of the bar.
+  netspeed = pkgs.writeShellApplication {
+    name = "waybar-netspeed";
+    runtimeInputs = with pkgs; [ coreutils gawk ];
+    text = builtins.readFile ./scripts/netspeed.sh;
+  };
+
+  btcPrice = pkgs.writeShellApplication {
+    name = "waybar-btc-price";
+    runtimeInputs = with pkgs; [ coreutils curl gawk jq ];
+    text = builtins.readFile ./scripts/btc-price.sh;
+  };
 in
 {
   programs.waybar = {
@@ -19,7 +35,14 @@ in
 
       modules-left = [ "hyprland/workspaces" "hyprland/submap" "hyprland/window" ];
       modules-center = [ "clock" ];
+      # NB: ORDER AND WIDTH. waybar lays the right-hand group out as one box,
+      # so any module that changes width shoves every other module sideways.
+      # custom/bitcoin and custom/netspeed both pad their output to a fixed
+      # number of characters for that reason, and the bar font is monospaced,
+      # so "fixed characters" really is fixed pixels.
       modules-right = [
+        "custom/bitcoin"
+        "custom/netspeed"
         "network"
         "cpu"
         "temperature"
@@ -61,12 +84,38 @@ in
         };
       };
 
-      # interval = 1 is what makes the up/down rate meaningful; the module
-      # computes throughput as a delta between polls.
+      # Bitcoin, polled every ten minutes. return-type json is what lets the
+      # script hand back a class as well as the text, which is where the
+      # up/down colouring below comes from.
+      "custom/bitcoin" = {
+        exec = "${btcPrice}/bin/waybar-btc-price";
+        interval = 600;
+        return-type = "json";
+        tooltip = true;
+        # A click refreshes on the spot rather than waiting out the interval:
+        # waybar re-runs a custom module when it gets SIGRTMIN+<signal>.
+        signal = 4;
+        on-click = "${pkgs.procps}/bin/pkill -RTMIN+4 waybar";
+      };
+
+      # Throughput, in the fixed-width form the network module cannot produce.
+      "custom/netspeed" = {
+        exec = "${netspeed}/bin/waybar-netspeed";
+        interval = 2;
+        tooltip = false;
+      };
+
+      # The rates used to live here as {bandwidthDownBytes}/{bandwidthUpBytes}
+      # with interval = 1, which is what made the whole right-hand side of the
+      # bar twitch once a second: those fields change width constantly.
+      # custom/netspeed above prints them padded instead, so this module is
+      # back to the parts that hardly ever change -- SSID, address, state --
+      # and can poll slowly. The tooltip still carries the rates, averaged
+      # over the interval.
       network = {
-        interval = 1;
-        format-wifi = "󰖩 {essid} 󰇚 {bandwidthDownBytes} 󰕒 {bandwidthUpBytes}";
-        format-ethernet = "󰈀 {ipaddr} 󰇚 {bandwidthDownBytes} 󰕒 {bandwidthUpBytes}";
+        interval = 5;
+        format-wifi = "󰖩 {essid}";
+        format-ethernet = "󰈀 {ipaddr}";
         format-linked = "󰈀 {ifname} (no IP)";
         format-disconnected = "󰖪 offline";
         tooltip-format = "{ifname} · {ipaddr}/{cidr} · via {gwaddr}\n󰇚 {bandwidthDownBytes}  󰕒 {bandwidthUpBytes}";
@@ -199,6 +248,16 @@ in
         padding: 0 12px;
         color: #${theme.subtext};
       }
+
+      #custom-netspeed { color: #${theme.steel}; }
+
+      /* Bitcoin: orange at rest, and green or red once the script has an
+         opening price to compare against. .stale means the last poll failed
+         and the number on screen is the cached one. */
+      #custom-bitcoin          { color: #${theme.orange}; font-weight: bold; }
+      #custom-bitcoin.up       { color: #${theme.green}; }
+      #custom-bitcoin.down     { color: #${theme.red}; }
+      #custom-bitcoin.stale    { color: #${theme.overlay}; font-weight: normal; }
 
       #network        { color: #${theme.steel}; }
       #cpu            { color: #${theme.teal}; }

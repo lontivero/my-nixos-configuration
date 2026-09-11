@@ -11,6 +11,7 @@
     ./starship.nix
     ./git.nix
     ./gtk.nix
+    ./cursor.nix
 
     # Hyprland desktop. theme.nix is deliberately NOT in this list: it is a
     # plain attrset of colours that the modules below import directly.
