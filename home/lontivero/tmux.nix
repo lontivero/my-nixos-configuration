@@ -1,6 +1,6 @@
-{ config, pkgs, home-manager, ... }:
+{ pkgs, ... }:
 {
-  home-manager.users.lontivero.programs.tmux = {
+  programs.tmux = {
     enable = true;
     terminal = "screen-256color";
     shortcut = "a";

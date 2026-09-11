@@ -6,7 +6,7 @@ let
   wasabiFile = "~/.ssh/wasabi-server.key";
 in  
 {
-  home-manager.users.lontivero.programs.ssh = {
+  programs.ssh = {
     enable = true;
     forwardAgent = true;
     hashKnownHosts = true;

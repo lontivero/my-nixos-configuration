@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 {
-  home-manager.users.lontivero.services.picom = {
+  services.picom = {
     enable = true;
     backend = "glx";
     fade = true;
