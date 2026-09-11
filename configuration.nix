@@ -91,8 +91,16 @@
 
   # needed for vscode
   services.gnome.gnome-keyring.enable = true;
-  home-manager.useGlobalPkgs = true;
-  home-manager.users.lontivero = import ./home/lontivero;
+  home-manager = {
+    useGlobalPkgs = true;
+    # Install home-manager packages into /etc/profiles/per-user rather
+    # than ~/.nix-profile, so they are part of the system generation.
+    useUserPackages = true;
+    # Rename pre-existing dotfiles instead of aborting the activation.
+    backupFileExtension = "hm-bak";
+
+    users.lontivero = import ./home/lontivero;
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
