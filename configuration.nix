@@ -4,10 +4,10 @@
 
 { inputs, outputs, lib, pkgs, ... }:
 {
+  # Shared system configuration. Hardware, hostname and anything else
+  # specific to a single machine lives in hosts/<name>/ instead.
   imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.home-manager.nixosModules.home-manager
+    [ inputs.home-manager.nixosModules.home-manager
       ./ssh.nix
       ./tmux.nix
       # ./picom.nix
@@ -24,9 +24,6 @@
 
   # Plymouth boot splash screen
   boot.plymouth.enable = true;
-
-  # For nvidia test
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Set your time zone.
   time.timeZone = "America/Argentina/Buenos_Aires";
@@ -46,35 +43,11 @@
     enable32Bit = true;
   };
 
-  services.xserver.videoDrivers = [ "nvidia" ];
-  
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = true;
-
-    open = false;
-
-    prime = {
-      offload = {
-        enable = true;
-        enableOffloadCmd = true;
-      };
-
-      amdgpuBusId = "PCI:5:0:0";  # Your AMD GPU
-      nvidiaBusId = "PCI:1:0:0";  # Your NVIDIA GPU
-    };
-  };
-
   # do not install what I dont want
   # services.gnome.core-utilities.enable = false;
 
   # Enable the GNOME Desktop Environment.
   services.displayManager.defaultSession = "none+i3";
-  services.xserver.displayManager.sessionCommands = ''
-    # Link NVIDIA (provider 1) outputs to AMD (provider 0)
-    ${pkgs.xorg.xrandr}/bin/xrandr --setprovideroutputsource 1 0
-    ${pkgs.xorg.xrandr}/bin/xrandr --auto
-  '';
   services.xserver.desktopManager.xterm.enable = false;
 
   documentation.man.generateCaches = true;
@@ -332,6 +305,8 @@
     win-spice
 
     pinentry-tty
+
+    signal-desktop
   ];
 
   # Solves problem for binaries that cannot find the interpreter
