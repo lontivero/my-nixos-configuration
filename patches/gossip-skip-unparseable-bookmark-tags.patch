@@ -1,0 +1,40 @@
+Don't let one bad bookmark tag stop gossip from starting.
+
+gossip_lib::init() loads the stored kind-10003 bookmark list before anything
+else runs, and BookmarkList::add_tags() propagated any tag it could not parse.
+A single malformed tag arriving from a relay therefore became a poison pill:
+every later startup aborted with
+
+    Error: Error { kind: Nostr(TagMismatch), file: None, line: None }
+
+before the UI -- or any subcommand, since init() precedes argument handling --
+ever ran, so nothing shipped with gossip could repair the database.
+
+The tag that triggered it here was ["title", ""]. nostr-types' get_opt_index()
+treats an empty string as absent, so the "title" arm of Tag::parse() hits
+`.ok_or(Error::TagMismatch)?`. add_tags() would have discarded that tag anyway:
+it only builds bookmarks out of Event and Address tags and sends everything
+else to `_ => continue`. So the tag was never usable, it only killed startup.
+
+Skipping a tag that fails to parse is therefore consistent with how the rest of
+the function treats tags it can't use. Log it at warn so the offending tag is
+identifiable rather than silently dropped.
+
+--- a/gossip-lib/src/bookmarks.rs
++++ b/gossip-lib/src/bookmarks.rs
+@@ -19,7 +19,14 @@
+ 
+     fn add_tags(&mut self, tags: &[Tag], private: bool) -> Result<(), Error> {
+         for tag in tags.iter() {
+-            let bookmark = match tag.parse()? {
++            let parsed = match tag.parse() {
++                Ok(parsed) => parsed,
++                Err(e) => {
++                    tracing::warn!("Skipping unparseable bookmark tag {:?}: {}", tag, e);
++                    continue;
++                }
++            };
++            let bookmark = match parsed {
+                 ParsedTag::Event {
+                     id,
+                     recommended_relay_url,

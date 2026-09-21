@@ -8,13 +8,22 @@
   imports = [
     ./alacritty.nix
     ./fish.nix
+    ./starship.nix
     ./git.nix
     ./gtk.nix
-    ./i3status.nix
+    ./cursor.nix
+
+    # Hyprland desktop. theme.nix is deliberately NOT in this list: it is a
+    # plain attrset of colours that the modules below import directly.
+    ./hyprland.nix
+    ./waybar.nix
+    ./rofi.nix
+    ./swaync.nix
+    ./lock.nix
+    ./wallpaper.nix
     ./neovim.nix
     ./ssh.nix
     ./tmux.nix
-    # ./picom.nix
   ];
 
   home.stateVersion = "22.05";

@@ -1,44 +1,59 @@
-{ config, pkgs, ... }:
+{ ... }:
 
 let
   wasabiUser = "user";
   wasabiFile = "~/.ssh/wasabi-server.key";
-in  
+in
 {
   programs.ssh = {
     enable = true;
-    forwardAgent = true;
-    hashKnownHosts = true;
-    serverAliveInterval=60;
-    controlMaster = "auto";
-    controlPath = "~/.ssh/master-%r@%h:%p";
-    matchBlocks = {
+
+    # 26.05 replaced the typed options (forwardAgent, matchBlocks, ...) with
+    # freeform ssh_config blocks keyed by Host pattern, spelled with upstream
+    # directive names. The module always renders the "*" block last, so the
+    # host blocks below still win -- ssh_config takes the FIRST value it sees
+    # for a keyword.
+    #
+    # enableDefaultConfig would prepend home-manager's own "*" defaults. The
+    # ones worth having are set explicitly below; the rest of them (Compression
+    # no, ServerAliveCountMax 3, UserKnownHostsFile ~/.ssh/known_hosts,
+    # ControlPersist no) only restate OpenSSH's own defaults.
+    enableDefaultConfig = false;
+
+    settings = {
       "wasabi-production" = {
-        hostname = "209.38.41.34";
-        user = wasabiUser;
-        identityFile =wasabiFile;
-        identitiesOnly = true;
+        HostName = "209.38.41.34";
+        User = wasabiUser;
+        IdentityFile = wasabiFile;
+        IdentitiesOnly = true;
       };
       "wasabi-testing" = {
-        hostname = "87.120.84.36";
-        user = wasabiUser;
-        identityFile =wasabiFile;
-        identitiesOnly = true;
+        HostName = "87.120.84.36";
+        User = wasabiUser;
+        IdentityFile = wasabiFile;
+        IdentitiesOnly = true;
       };
       "github.com" = {
-        hostname = "github.com";
-        identityFile = "~/.ssh/id_rsa";
-        identitiesOnly = true;
+        HostName = "github.com";
+        IdentityFile = "~/.ssh/id_rsa";
+        IdentitiesOnly = true;
       };
       "bitcoin-full-node.org.ar" = {
-        identityFile = "~/.ssh/bitcoin-full-node.org.ar";
+        IdentityFile = "~/.ssh/bitcoin-full-node.org.ar";
+      };
+
+      "*" = {
+        ForwardAgent = true;
+        HashKnownHosts = true;
+        ServerAliveInterval = 60;
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/master-%r@%h:%p";
+        IdentitiesOnly = true;
+        # NB: this used to be dead. It was set in extraConfig, which landed
+        # BELOW home-manager's default `AddKeysToAgent no` in the same "*"
+        # block, so the default won. Now it actually takes effect.
+        AddKeysToAgent = "yes";
       };
     };
-    extraConfig = ''
-      IdentitiesOnly yes 
-      AddKeysToAgent yes
-    '';
   };
 }
-
-
