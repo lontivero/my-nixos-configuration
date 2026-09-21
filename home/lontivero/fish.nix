@@ -64,16 +64,10 @@ in
       };
       clip = {
         description = "Copy to the system clipboard";
-        # Was xclip unconditionally, which does nothing under Hyprland.
-        # Both tools are in systemPackages, so branch on the session rather
-        # than picking one -- the i3/X11 fallback session still needs xclip.
-        body = ''
-          if set -q WAYLAND_DISPLAY
-            wl-copy $argv
-          else
-            xclip -selection clipboard $argv
-          end
-        '';
+        # Was xclip, which does nothing under Hyprland, and then a branch on
+        # WAYLAND_DISPLAY while the i3 session still existed. The desktop is
+        # Wayland-only now, so there is one tool again.
+        body = "wl-copy $argv";
       };
       qr = {
         description = "Encode data as QR code";

@@ -7,17 +7,12 @@
 { config, pkgs, ... }:
 {
   services.xserver.videoDrivers = [ "nvidia" ];
-  # NB: lightdm sets one session-wrapper for the whole seat, so this runs for
-  # EVERY session it starts -- the Hyprland one included, where it logged two
-  # "Can't open display" lines before the compositor even spoke. Guarded on
-  # DISPLAY so it stays what it is meant to be: X11-only PRIME plumbing.
-  services.xserver.displayManager.sessionCommands = ''
-    if [ -n "$DISPLAY" ]; then
-      # Link NVIDIA (provider 1) outputs to AMD (provider 0)
-      ${pkgs.xrandr}/bin/xrandr --setprovideroutputsource 1 0
-      ${pkgs.xrandr}/bin/xrandr --auto
-    fi
-  '';
+  # NB: videoDrivers is not an X11 setting despite the name -- with no X
+  # server left it is still what makes the nvidia module build its kernel
+  # modules and wire up the Wayland bits below. A sessionCommands hook used
+  # to sit here running `xrandr --setprovideroutputsource 1 0` to link the
+  # NVIDIA outputs to the AMD provider; that was PRIME plumbing for the X11
+  # session and went with it. Hyprland drives both cards directly.
 
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;

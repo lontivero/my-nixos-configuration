@@ -58,8 +58,8 @@ in
       set -g allow-passthrough on
 
       # Copying goes through OSC 52, so a yank inside tmux lands in the
-      # Wayland clipboard via alacritty -- and keeps working over SSH and in
-      # the i3/X11 fallback session, which a wl-copy pipe would not.
+      # Wayland clipboard via alacritty -- and keeps working over SSH, where
+      # a wl-copy pipe would have nothing to talk to.
       set -g set-clipboard on
 
       #### Copy mode #######################################################

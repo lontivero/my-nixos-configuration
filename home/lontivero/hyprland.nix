@@ -13,6 +13,8 @@ let
   wlcopy = "${pkgs.wl-clipboard}/bin/wl-copy";
   brightnessctl = "${pkgs.brightnessctl}/bin/brightnessctl";
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
+  # The notification centre configured in swaync.nix.
+  swayncClient = "${config.services.swaync.package}/bin/swaync-client";
 in
 {
   wayland.windowManager.hyprland = {
@@ -152,8 +154,10 @@ in
 
       #### Input ############################################################
       #
-      # Mirrors services.xserver.xkb.* from configuration.nix, which only
-      # applies to the X11 session. Hyprland needs its own copy.
+      # Mirrors services.xserver.xkb.* from configuration.nix. Hyprland does
+      # not read those -- there is no X server any more, and it never did --
+      # so the layout is written twice on purpose; keep the two in step.
+      # greeter.nix reads the same option for the login screen.
       input = {
         kb_layout = "latam,us";
         kb_options = "eurosign:e,compose:menu,grp:alt_space_toggle";
@@ -174,7 +178,7 @@ in
 
       #### Startup ##########################################################
       #
-      # waybar, dunst, hypridle and hyprpaper are NOT here: they are systemd
+      # waybar, swaync, hypridle and hyprpaper are NOT here: they are systemd
       # user services bound to hyprland-session.target by their own modules,
       # so they restart cleanly and survive a Hyprland reload.
       exec-once = [
@@ -255,6 +259,8 @@ in
       # rofi draws itself on a layer-shell surface named "rofi"; blurring it
       # is what makes the translucent launcher in rofi.nix read as frosted
       # glass rather than as a window someone left half-faded.
+      # swaync's panel and its toasts get the same treatment, on the two
+      # namespaces it sets: swaync-control-center and swaync-notification-window.
       #
       # NB: layerrule took the same grammar change in 0.55 that windowrule did
       # (see the windowrule block above) -- `<effect> <value>, match:namespace <regex>`.
@@ -271,6 +277,10 @@ in
       layerrule = [
         "blur true, match:namespace ^(rofi)$"
         "ignore_alpha 0.1, match:namespace ^(rofi)$"
+        "blur true, match:namespace ^(swaync-control-center)$"
+        "ignore_alpha 0.1, match:namespace ^(swaync-control-center)$"
+        "blur true, match:namespace ^(swaync-notification-window)$"
+        "ignore_alpha 0.1, match:namespace ^(swaync-notification-window)$"
       ];
 
       # The scratchpad terminal, replacing the i3 `dropdown` instance.
@@ -292,6 +302,12 @@ in
         "$mod,Tab,exec,${rofi} -show window"
         "$mod SHIFT,f,exec,${browser}"
         "$mod SHIFT,q,killactive,"
+
+        # Notifications. $mod+n opens swaync's panel -- the same thing the
+        # bell in waybar does -- and $mod+Shift+n silences it. Neither key
+        # was taken: the i3 map never used n.
+        "$mod,n,exec,${swayncClient} --toggle-panel --skip-wait"
+        "$mod SHIFT,n,exec,${swayncClient} --toggle-dnd --skip-wait"
 
         # Focus -- i3's j/k/l/semicolon, plus arrows
         "$mod,j,movefocus,l"

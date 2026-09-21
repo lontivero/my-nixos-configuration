@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, osConfig, ... }:
 let
   theme = import ./theme.nix;
 
@@ -17,6 +17,19 @@ let
     runtimeInputs = with pkgs; [ coreutils curl gawk jq ];
     text = builtins.readFile ./scripts/btc-price.sh;
   };
+
+  # The panel this bell opens, from the same package.
+  swayncClient = "${config.services.swaync.package}/bin/swaync-client";
+
+  # The unread-notification count behind the bell, streamed out of swaync.
+  # runtimeInputs pulls in the very package swaync.nix runs, so the client
+  # here can never drift from the daemon it talks to.
+  swayncCount = pkgs.writeShellApplication {
+    name = "waybar-swaync-count";
+    runtimeInputs = [ config.services.swaync.package pkgs.jq ];
+    text = builtins.readFile ./scripts/swaync-count.sh;
+  };
+
 in
 {
   programs.waybar = {
@@ -51,6 +64,7 @@ in
         "backlight"
         "wireplumber"
         "battery"
+        "custom/notifications"
         "tray"
       ];
 
@@ -71,6 +85,15 @@ in
       };
 
       clock = {
+        # NB: the timezone has to be spelled out. waybar asks libstdc++ for
+        # std::chrono::current_zone(), and on NixOS that returns Etc/UTC: it
+        # only knows how to read a zone name back out of /etc/localtime when
+        # the symlink points into its own compiled-in /usr/share/zoneinfo,
+        # which does not exist here (ours points into /etc/zoneinfo). Setting
+        # TZ does not help either, that code path ignores it. Naming the zone
+        # sends waybar through locate_zone() instead, which does work. Taken
+        # from the system setting so there is still only one place to change.
+        timezone = osConfig.time.timeZone;
         format = "󰃰 {:%a %d %b  %H:%M}";
         format-alt = "󰃰 {:%Y-%m-%d %H:%M:%S}";
         tooltip-format = "<tt><small>{calendar}</small></tt>";
@@ -183,6 +206,44 @@ in
         tooltip-format = "{timeTo}  ·  {power:0.1f}W";
       };
 
+      # The notification bell: unread count in the bar, swaync's panel on a
+      # click. No interval -- the script blocks on swaync's event stream and
+      # prints a line per change, which is what makes the count instant.
+      # restart-interval is the safety net for the stream ending, which is
+      # what happens for the moment it takes swaync to come back after a
+      # `systemctl --user restart swaync`.
+      "custom/notifications" = {
+        exec = "${swayncCount}/bin/waybar-swaync-count";
+        return-type = "json";
+        restart-interval = 5;
+        # The count is padded to two characters by the script, so this is
+        # constant-width; see the note on modules-right.
+        #
+        # NB: "{text}", not "{}". waybar formats this through fmt, and naming
+        # one field ({icon}) counts as manual argument indexing -- a bare {}
+        # after it is then automatic indexing, which fmt refuses to mix. The
+        # whole fmt::format call throws, so the module renders NOTHING at all,
+        # not just a missing icon, and the only trace is a line per update in
+        # `journalctl --user -u waybar`.
+        format = "{icon} {text}";
+        # Keyed on the "alt" field, which is swaync's state: whether anything
+        # is unread, and whether do-not-disturb is on.
+        format-icons = {
+          none = "󰂜";
+          notification = "󰂞";
+          "dnd-none" = "󰂛";
+          "dnd-notification" = "󰂠";
+          "inhibited-none" = "󰂛";
+          "inhibited-notification" = "󰂠";
+          "dnd-inhibited-none" = "󰂛";
+          "dnd-inhibited-notification" = "󰂠";
+        };
+        # -sw stops the client blocking for a daemon that is not up yet, so a
+        # click during the first second of a session fails instead of hanging.
+        on-click = "${swayncClient} --toggle-panel --skip-wait";
+        on-click-right = "${swayncClient} --toggle-dnd --skip-wait";
+      };
+
       tray = {
         icon-size = 16;
         spacing = 10;
@@ -205,8 +266,9 @@ in
       }
 
       /* Every right-hand module gets the same breathing room. */
-      #network, #cpu, #temperature, #memory, #disk,
-      #backlight, #wireplumber, #battery, #tray, #clock {
+      #custom-bitcoin, #network, #cpu, #temperature, #memory, #disk,
+      #backlight, #wireplumber, #battery, #custom-notifications, #tray,
+      #clock {
         padding: 0 12px;
       }
 
@@ -275,6 +337,21 @@ in
       }
 
       #battery.warning  { color: #${theme.orange}; }
+
+      /* The bell recedes into the bar when there is nothing to read and goes
+         yellow when there is. dnd keeps it dim whatever the count, which is
+         the point of dnd, but tints it so the muted state is never a
+         surprise. */
+      #custom-notifications                     { color: #${theme.overlay}; }
+      #custom-notifications.notification        { color: #${theme.yellow}; font-weight: bold; }
+      #custom-notifications.dnd-none,
+      #custom-notifications.dnd-notification,
+      #custom-notifications.dnd-inhibited-none,
+      #custom-notifications.dnd-inhibited-notification { color: #${theme.purple}; }
+
+      /* swaync adds a second class, cc-open, while the panel is up. Listed
+         last so it wins over the two rules above at equal specificity. */
+      #custom-notifications.cc-open { color: #${theme.accent}; }
 
       /* Blink only when it is genuinely urgent. */
       #battery.critical:not(.charging) {

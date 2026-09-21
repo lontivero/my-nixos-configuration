@@ -12,8 +12,9 @@
   #
   # home.pointerCursor is the single place to say this: it installs the theme,
   # links it into ~/.local/share/icons and ~/.icons, sets XCURSOR_THEME and
-  # XCURSOR_SIZE, writes the Xresources for the i3 fallback session, and hands
-  # gtk.cursorTheme the same values so GTK apps agree with the compositor.
+  # XCURSOR_SIZE, writes the Xcursor Xresources that XWayland clients read,
+  # and hands gtk.cursorTheme the same values so GTK apps agree with the
+  # compositor.
   home.pointerCursor = {
     name = "Bibata-Modern-Classic";
     package = pkgs.bibata-cursors;

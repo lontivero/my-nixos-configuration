@@ -18,14 +18,12 @@
     ./hyprland.nix
     ./waybar.nix
     ./rofi.nix
-    ./dunst.nix
+    ./swaync.nix
     ./lock.nix
     ./wallpaper.nix
-    ./i3status.nix   # still used by the i3 fallback session
     ./neovim.nix
     ./ssh.nix
     ./tmux.nix
-    # ./picom.nix
   ];
 
   home.stateVersion = "22.05";

@@ -3,18 +3,15 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, inputs, outputs, lib, pkgs, ... }:
-let
-  # Where the NixOS modules collect the .desktop files for every enabled
-  # session -- share/wayland-sessions for Hyprland, share/xsessions for i3.
-  # lightdm found these on its own; greetd has to be pointed at them.
-  sessionDesktops = config.services.displayManager.sessionData.desktops;
-in
+
 {
   # Shared system configuration. Hardware, hostname and anything else
   # specific to a single machine lives in hosts/<name>/ instead.
   imports =
     [ inputs.home-manager.nixosModules.home-manager
       ./networking.nix
+      ./greeter.nix
+      ./gossip.nix
     ];
 
   nixpkgs.config.allowUnfree = true;
@@ -38,9 +35,6 @@ in
   #   keyMap = "us";
   # };
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -49,88 +43,9 @@ in
   # do not install what I dont want
   # services.gnome.core-utilities.enable = false;
 
-  #### Login manager ####################################################
-  #
-  # greetd runs tuigreet directly on VT1. No X server is involved, so seat0
-  # is already active by the time the session command runs.
-  #
-  # This replaces lightdm, which ran an X11 greeter and handed off from it
-  # to a Wayland session. That handover is a race, and on 2026-09-11 it
-  # started losing it: Hyprland opened the seat one to two seconds before
-  # the greeter let go, logind still counted the greeter as the active
-  # session, and aquamarine set libinput up against a seat whose devices it
-  # was not yet allowed to open. Every keyboard was then lost for the life
-  # of the session -- the pointer survived only because USB re-enumerated
-  # it a moment later, which is what made it look like a dead keyboard
-  # rather than a dead session. The tell in the log is
-  #
-  #   journalctl -t xsession -b -1 | grep 'Session is not active'
-  #
-  # which appears in exactly the boots that came up with no keyboard, and
-  # in none of the ones that came up healthy.
-  #
-  # The i3 block below stays enabled on purpose, so "i3" remains selectable
-  # at the login screen -- this is a hybrid-graphics laptop and the X11
-  # session is the fallback if a Hyprland or NVIDIA update ever breaks the
-  # Wayland one. Press F2 at the greeter to pick it.
-  #
-  # NB: services.greetd.vt no longer exists. The VT is fixed to 1, and the
-  # module disables autovt@tty1 so getty does not fight for it.
-  services.xserver.displayManager.lightdm.enable = false;
-
-  services.greetd = {
-    enable = true;
-    # Keeps systemd's own boot output from being drawn over the TUI.
-    useTextGreeter = true;
-    settings.default_session.command = lib.concatStringsSep " " [
-      "${pkgs.greetd.tuigreet}/bin/tuigreet"
-      "--time"
-      "--asterisks"
-      "--remember" # pre-fill the last username
-      "--remember-session" # and re-select the session it was used with
-      "--sessions ${sessionDesktops}/share/wayland-sessions"
-      "--xsessions ${sessionDesktops}/share/xsessions"
-      # tuigreet's default wrapper is `startx /usr/bin/env`, and neither of
-      # those paths exists here. X11 sessions need a wrapper at all because
-      # greetd hands them a bare VT, whereas the NixOS xsession script only
-      # launches the window manager and assumes a server is already up.
-      "--xsession-wrapper '${pkgs.xinit}/bin/startx ${pkgs.coreutils}/bin/env'"
-      # What runs before anything has been remembered, i.e. the first login
-      # after this change. Same binary hyprland.desktop names; the three
-      # variables below are the ones that .desktop file would have exported
-      # and are set by hand here because --cmd bypasses it.
-      "--cmd ${config.programs.hyprland.package}/bin/start-hyprland"
-      "--env XDG_CURRENT_DESKTOP=Hyprland"
-      "--env XDG_SESSION_DESKTOP=hyprland"
-      "--env DESKTOP_SESSION=hyprland"
-    ];
-  };
-
-  # Gives startx a NixOS-aware /etc/X11/xinit/xserverrc, so the X server the
-  # i3 fallback brings up is the configured one with the configured
-  # arguments. This is not a display manager and does not compete with
-  # greetd; it exists only so --xsession-wrapper above has a working startx
-  # to call.
-  services.xserver.displayManager.startx.enable = true;
-
-  services.xserver.desktopManager.xterm.enable = false;
-
   documentation.man.cache.enable = true;
 
   environment.pathsToLink = [ "/libexec" "/share/fish" ];
-  services.xserver.windowManager.i3 = {
-    enable = true;
-    # NB: the i3-gaps fork is gone; gaps are upstream i3 since 4.22,
-    # so this uses the default pkgs.i3 rather than naming a package.
-    extraPackages = with pkgs; [
-      dmenu
-      i3status
-      i3lock
-      i3blocks
-    ];
-    configFile = "/etc/i3.conf";
-  };
-
   # Hyprland. The system module provides the session file, the polkit
   # rules and the xdg-desktop-portal wiring; the actual configuration is a
   # home-manager module in home/lontivero/hyprland.nix.
@@ -198,12 +113,13 @@ in
     "inode/directory" = "thunar.desktop";
   };
 
-  environment.etc."i3.conf".text = pkgs.callPackage ./i3-config.nix {};
-
   # Do not suspend when close the laptop
   services.logind.settings.Login.HandleLidSwitch = "ignore";
 
-  # Configure keymap in X11
+  # Keyboard layout. Nothing reads this as an X11 setting any more -- the X
+  # server is off -- but services.xserver.xkb is still the one place the
+  # layout is written down: greeter.nix turns it into XKB_DEFAULT_* for the
+  # login screen, and home/lontivero/hyprland.nix mirrors it into input:kb_*.
   services.xserver.xkb.layout = "latam,us";
   services.xserver.xkb.options = "eurosign:e, compose:menu, grp:alt_space_toggle";
 
@@ -212,9 +128,6 @@ in
 
   # Enable sound.
   services.pulseaudio.enable = false;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   # users.mutableUsers = false;
@@ -248,7 +161,6 @@ in
     firefox
     htop
     dmenu
-    xclip
     bc
     qrencode
     ffmpeg
@@ -269,7 +181,6 @@ in
     ripgrep
     weechat
     rofi
-    nitrogen
     ranger
     tree
     watch
@@ -279,7 +190,6 @@ in
     patchelf
     direnv
 
-    dunst
     viewnior
     mpd
     mpc
@@ -287,13 +197,12 @@ in
     brightnessctl
     libnotify
 
-    # Wayland equivalents of the X11 tools above. scrot, xclip and nitrogen
-    # are kept because the i3 fallback session still uses them.
-    scrot
-    grim          # screenshots        (X11: scrot)
-    slurp         # region selection   (X11: scrot -s)
-    wl-clipboard  # wl-copy/wl-paste   (X11: xclip)
-    wev           # key event debugger (X11: xev)
+    # The desktop is Wayland-only. scrot, xclip and nitrogen used to sit
+    # alongside these for the i3 session and went with it.
+    grim          # screenshots
+    slurp         # region selection
+    wl-clipboard  # wl-copy/wl-paste
+    wev           # key event debugger
     pavucontrol
     papirus-icon-theme
     hyprpolkitagent
@@ -317,6 +226,7 @@ in
 
     signal-desktop
     spotify
+    # gossip is in ./gossip.nix, which patches it
   ];
 
   # Solves problem for binaries that cannot find the interpreter
