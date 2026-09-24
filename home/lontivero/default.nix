@@ -24,6 +24,7 @@
     ./neovim.nix
     ./ssh.nix
     ./tmux.nix
+    ./keepass.nix
   ];
 
   home.stateVersion = "22.05";

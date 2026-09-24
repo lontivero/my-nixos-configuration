@@ -15,6 +15,8 @@ let
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   # The notification centre configured in swaync.nix.
   swayncClient = "${config.services.swaync.package}/bin/swaync-client";
+  # The password manager configured in keepass.nix.
+  keepassxc = "${config.programs.keepassxc.package}/bin/keepassxc";
 in
 {
   wayland.windowManager.hyprland = {
@@ -228,6 +230,25 @@ in
 
         # Float the small utility windows rather than tiling them.
         "float true, match:class ^([Pp]avucontrol|[Ll]xappearance|nm-connection-editor)$"
+
+        # KeePassXC floats over whatever workspace you are on rather than
+        # being assigned one: you reach for it in the middle of doing
+        # something else, copy a password, and dismiss it. No `workspace`
+        # rule here on purpose.
+        #
+        # On the class: 2.7.12 ships org.keepassxc.KeePassXC.desktop but sets
+        # StartupWMClass=keepassxc, and the reverse-DNS form appears nowhere in
+        # the binary -- so the Wayland app_id is the short one. Both spellings
+        # are in the regex anyway, because upstream calling
+        # setDesktopFileName() in some later release would otherwise break
+        # these rules the silent way (see the grammar note above: a rule that
+        # matches nothing still reports "ok"). Confirm with
+        #
+        #   hyprctl -j clients | jq -r '.[]|select(.title|test("KeePassXC"))|.class'
+        "float true, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
+        "center true, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
+        # Pixels, not percentages -- see the note on the dropdown size below.
+        "size 1100 700, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
         "float true, match:title ^(Picture-in-Picture)$"
         "pin true, match:title ^(Picture-in-Picture)$"
 
@@ -302,6 +323,12 @@ in
         "$mod,Tab,exec,${rofi} -show window"
         "$mod SHIFT,f,exec,${browser}"
         "$mod SHIFT,q,killactive,"
+
+        # Passwords. Paired with $mod+p above -- p is the run dialog, Shift+p
+        # the password manager -- and $mod SHIFT+p was free. KeePassXC is
+        # single-instance, so pressing this while it is already up raises the
+        # existing window instead of starting a second copy.
+        "$mod SHIFT,p,exec,${keepassxc}"
 
         # Notifications. $mod+n opens swaync's panel -- the same thing the
         # bell in waybar does -- and $mod+Shift+n silences it. Neither key
