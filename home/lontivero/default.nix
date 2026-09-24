@@ -3,7 +3,12 @@
 # These are plain home-manager modules: they set `programs.*` / `gtk.*`
 # directly, and configuration.nix wires the whole directory in with
 # `home-manager.users.lontivero = import ./home/lontivero;`.
-{ ... }:
+{ config, pkgs, ... }:
+let
+  # Not in the imports below: projects.nix is a plain function, not a module.
+  # hyprland.nix imports it too, for the keys that drive these.
+  projects = import ./projects.nix { inherit pkgs config; };
+in
 {
   imports = [
     ./alacritty.nix
@@ -38,4 +43,8 @@
   # configuration.nix. Setting it to false below would stop the second
   # build at the cost of that fish completion.
   programs.direnv.enable = true;
+
+  # The project session scripts, so `project-devshell Nostra` and
+  # `project-menu switch` can be run by hand as well as from $mod+o / $mod+i.
+  home.packages = [ projects.menu projects.devshell ];
 }
