@@ -15,6 +15,14 @@ let
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   # The notification centre configured in swaync.nix.
   swayncClient = "${config.services.swaync.package}/bin/swaync-client";
+  # The password manager configured in keepass.nix.
+  keepassxc = "${config.programs.keepassxc.package}/bin/keepassxc";
+
+  # The per-project development sessions -- see projects.nix, and the design
+  # note at the top of scripts/project-menu.sh. Bound to $mod+o and $mod+i
+  # below, with the rest of the keys.
+  projects = import ./projects.nix { inherit pkgs config; };
+  projectMenu = "${projects.menu}/bin/project-menu";
 in
 {
   wayland.windowManager.hyprland = {
@@ -219,7 +227,13 @@ in
         "workspace 1, match:class ^([Aa]lacritty)$"
         "workspace 2, match:class ^(firefox|chromium-browser|Chromium)$"
         "workspace 3, match:class ^([Tt]hunar|org.gnome.Nautilus)$"
-        "workspace 4, match:class ^([Cc]ode|jetbrains-rider|[Rr]ider)$"
+        # NB: Rider used to be in here alongside Code, and must not be again.
+        # Every Rider window now belongs to a project session on a workspace
+        # named after that project ($mod+o, see projects.nix), and a rule
+        # sending the class to workspace 4 outranks the `[workspace name:X]`
+        # the session spawns it with -- so all of them piled onto 4 regardless
+        # of which project they had open.
+        "workspace 4, match:class ^([Cc]ode)$"
         "workspace 5, match:class ^(vlc|mpv|[Mm]player|[Ss]potify)$"
         "workspace 6, match:class ^([Ss]ignal|[Ss]ignal-desktop)$"
         "workspace 7, match:class ^([Gg]imp|[Ii]nkscape|libreoffice.*|org.pwmt.zathura)$"
@@ -228,6 +242,25 @@ in
 
         # Float the small utility windows rather than tiling them.
         "float true, match:class ^([Pp]avucontrol|[Ll]xappearance|nm-connection-editor)$"
+
+        # KeePassXC floats over whatever workspace you are on rather than
+        # being assigned one: you reach for it in the middle of doing
+        # something else, copy a password, and dismiss it. No `workspace`
+        # rule here on purpose.
+        #
+        # On the class: 2.7.12 ships org.keepassxc.KeePassXC.desktop but sets
+        # StartupWMClass=keepassxc, and the reverse-DNS form appears nowhere in
+        # the binary -- so the Wayland app_id is the short one. Both spellings
+        # are in the regex anyway, because upstream calling
+        # setDesktopFileName() in some later release would otherwise break
+        # these rules the silent way (see the grammar note above: a rule that
+        # matches nothing still reports "ok"). Confirm with
+        #
+        #   hyprctl -j clients | jq -r '.[]|select(.title|test("KeePassXC"))|.class'
+        "float true, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
+        "center true, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
+        # Pixels, not percentages -- see the note on the dropdown size below.
+        "size 1100 700, match:class ^(org.keepassxc.KeePassXC|[Kk]eepassxc)$"
         "float true, match:title ^(Picture-in-Picture)$"
         "pin true, match:title ^(Picture-in-Picture)$"
 
@@ -302,6 +335,21 @@ in
         "$mod,Tab,exec,${rofi} -show window"
         "$mod SHIFT,f,exec,${browser}"
         "$mod SHIFT,q,killactive,"
+
+        # Passwords. Paired with $mod+p above -- p is the run dialog, Shift+p
+        # the password manager -- and $mod SHIFT+p was free. KeePassXC is
+        # single-instance, so pressing this while it is already up raises the
+        # existing window instead of starting a second copy.
+        "$mod SHIFT,p,exec,${keepassxc}"
+
+        # Projects. $mod+o picks any project in ~/Projects and brings up its
+        # session -- a terminal in `nix develop ./devshell` plus Rider started
+        # from that same shell -- on a workspace named after it; $mod+i switches
+        # between the sessions already up. $mod+o on a project that is already
+        # up just focuses it, so $mod+i is the shortcut, not the only way back.
+        # Neither key was taken: the i3 map used no o and no i.
+        "$mod,o,exec,${projectMenu} open"
+        "$mod,i,exec,${projectMenu} switch"
 
         # Notifications. $mod+n opens swaync's panel -- the same thing the
         # bell in waybar does -- and $mod+Shift+n silences it. Neither key
