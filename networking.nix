@@ -15,6 +15,30 @@
 
     networkmanager.enable = true;
 
+    # Syncthing, which home/lontivero/keepass.nix runs as a user service to
+    # keep the KeePass database in step with the phone. The firewall is on by
+    # default in NixOS and these are the ports Syncthing needs opened inbound:
+    #
+    #   22000/tcp  the sync protocol itself
+    #   22000/udp  the same over QUIC, which is what it prefers on wifi
+    #   21027/udp  local discovery -- the broadcasts other devices send to
+    #              announce themselves on the LAN
+    #
+    # Without 21027 the two ends never see each other at home and fall back to
+    # a public relay: still encrypted, still correct, but slower and routed
+    # through a stranger for no reason. Without 22000 inbound only outbound
+    # connections work, so whether they connect at all comes down to which
+    # side dials first.
+    #
+    # NB: the system-level services.syncthing has an `openDefaultPorts` option
+    # that does exactly this. It is not usable here -- Syncthing is declared
+    # through home-manager, in the user's own module, so this is the
+    # system-level counterpart, written out by hand.
+    firewall = {
+      allowedTCPPorts = [ 22000 ];
+      allowedUDPPorts = [ 22000 21027 ];
+    };
+
     #extraHosts = let
     #  hostsPath = https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts;
     #  hostsFile = builtins.fetchurl {
