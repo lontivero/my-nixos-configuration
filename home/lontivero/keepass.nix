@@ -62,8 +62,21 @@ in
     # it does not belong in a public tree.
     #
     # So: pairing and folder setup are a one-time job in the web UI at
-    # http://127.0.0.1:8384, and they persist in ~/.config/syncthing, untracked,
-    # alongside the TLS keys. See the checklist at the bottom of this file.
+    # http://127.0.0.1:8384. They persist across rebuilds and reboots in
+    #
+    #   ~/.local/state/syncthing/config.xml
+    #
+    # untracked, next to key.pem and cert.pem -- which ARE this machine's
+    # identity, in the sense that the device ID is a hash of that public key.
+    # Keep those two and the pairing survives a reinstall; lose them and the
+    # machine comes back as a stranger that has to be paired again.
+    #
+    # NB: NOT ~/.config/syncthing. Syncthing 2.x moved to the XDG state
+    # directory, and this module follows it there for a fresh setup (it falls
+    # back to ~/.config/syncthing only if a config.xml is already sitting
+    # there from a 1.x install). Worth knowing before backing up the wrong one.
+    #
+    # See the checklist at the bottom of this file.
     overrideDevices = false;
     overrideFolders = false;
 
